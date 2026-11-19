@@ -1,0 +1,20 @@
+keys: ['question', 'cot', 'answer'] {'question': 384618, 'cot': 384618, 'answer': 384618}
+--- 0
+Q: Jen shared a pack of chocolates among her friends. She gave 20% to Lucy, 30% to Sarah and the remaining were shared equally among four others. If the 
+COT: 'The total percentage given to Lucy and Sarah is 20% + 30% = 50%. So, the remaining percentage that was shared among the others is 100% - 50% = 50%. The total number of chocolates shared among the others is 100 * 50 / 100 = 50 chocolates. So, each of the four others received 50 / 4 = 12.5 chocolates.'
+ANS: 12.5
+--- 1
+Q: A cafeteria made a fruit salad that contained 5 different fruits. The salad contained 20 apples, twice as many strawberries as apples, 15 times as man
+COT: 'Number of strawberries in the salad is 2 * 20 = 40 Number of grapes in the salad is 15 * 40 = 600 Number of oranges in the salad is 2 * 600 = 1200 In total there are 20 + 40 + 600 + 1200 = 1860 fruits in the salad'
+ANS: 1860
+--- 2
+Q: Allison and Emma are building sandcastles. Emma's castle takes twice as long as Allison's to build. Maya, who is watching, spends three times as long 
+COT: 'Let x represent the number of hours Allison spent building. Emma spent 2x hours building. Maya spent 3x hours observing. In total, hours spent is x+2x+3x=6x. 6x = 36 hours Solving the equation yields x=6 hours. So, Allison spends 6 hours building her sandcastle.'
+ANS: 6
+--- 3
+Q: Andy receives a monthly salary of $800 but he has to pay a tax of 7%. How much is his net salary?
+COT: "Andy needs to pay $800*7/100 = $56 for the tax. Therefore, Andy's take-home salary will be $800 - $56 = $744."
+ANS: 744
+sentences per chain: {1: 108920, 2: 120969, 3: 89224, 4: 40851, 5: 15905, 6: 5521, 7: 2269, 8: 707, 9: 183, 10: 51, 11: 10, 12: 5, 14: 1, 16: 1, 17: 1}
+NL rows: 384618 | compact rows: 385536 | NL questions found in compact: 384616
+duplicate NL questions: 83

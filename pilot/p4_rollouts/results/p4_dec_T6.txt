@@ -1,0 +1,43 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 5804.88it/s]
+data ready in 18s: T=6, problems with n >= 6: train 7515, val 1000
+decoder trainable parameters: 75.7M
+step 100/2340 loss 2.1311 gn 1.71 lr 4.32e-05 15s
+step 200/2340 loss 1.4652 gn 2.99 lr 8.59e-05 30s
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+== epoch 1: val(500) oracle step acc [0.588, 0.484, 0.354, 0.350, 0.322, 0.326] | answer acc 0.268
+step 300/2340 loss 1.0586 gn 3.12 lr 9.98e-05 52s
+step 400/2340 loss 1.0151 gn 2.26 lr 9.86e-05 67s
+== epoch 2: val(500) oracle step acc [0.628, 0.564, 0.480, 0.500, 0.498, 0.562] | answer acc 0.546
+step 500/2340 loss 0.8159 gn 3.25 lr 9.65e-05 88s
+step 600/2340 loss 0.7301 gn 3.17 lr 9.35e-05 103s
+step 700/2340 loss 0.7323 gn 2.47 lr 8.96e-05 118s
+== epoch 3: val(500) oracle step acc [0.622, 0.626, 0.504, 0.506, 0.514, 0.628] | answer acc 0.654
+step 800/2340 loss 0.6623 gn 2.57 lr 8.49e-05 151s
+step 900/2340 loss 0.8206 gn 2.95 lr 7.96e-05 166s
+== epoch 4: val(500) oracle step acc [0.680, 0.660, 0.570, 0.554, 0.522, 0.644] | answer acc 0.664
+step 1000/2340 loss 0.5758 gn 2.13 lr 7.37e-05 190s
+step 1100/2340 loss 0.5210 gn 2.84 lr 6.74e-05 205s
+== epoch 5: val(500) oracle step acc [0.680, 0.670, 0.564, 0.548, 0.514, 0.674] | answer acc 0.694
+step 1200/2340 loss 0.4492 gn 2.42 lr 6.08e-05 234s
+step 1300/2340 loss 0.3745 gn 2.87 lr 5.41e-05 248s
+step 1400/2340 loss 0.3956 gn 2.29 lr 4.75e-05 263s
+== epoch 6: val(500) oracle step acc [0.704, 0.712, 0.598, 0.598, 0.582, 0.688] | answer acc 0.710
+step 1500/2340 loss 0.3753 gn 2.32 lr 4.09e-05 285s
+step 1600/2340 loss 0.3902 gn 2.52 lr 3.47e-05 300s
+== epoch 7: val(500) oracle step acc [0.734, 0.696, 0.614, 0.604, 0.554, 0.690] | answer acc 0.720
+step 1700/2340 loss 0.2944 gn 2.43 lr 2.90e-05 325s
+step 1800/2340 loss 0.3432 gn 2.62 lr 2.38e-05 340s
+== epoch 8: val(500) oracle step acc [0.744, 0.748, 0.630, 0.610, 0.612, 0.696] | answer acc 0.734
+step 1900/2340 loss 0.2775 gn 2.09 lr 1.94e-05 362s
+step 2000/2340 loss 0.2286 gn 2.55 lr 1.57e-05 376s
+step 2100/2340 loss 0.3028 gn 2.24 lr 1.29e-05 391s
+== epoch 9: val(500) oracle step acc [0.748, 0.764, 0.642, 0.626, 0.596, 0.702] | answer acc 0.738
+step 2200/2340 loss 0.2686 gn 2.11 lr 1.10e-05 412s
+step 2300/2340 loss 0.2563 gn 2.11 lr 1.01e-05 427s
+== epoch 10: val(500) oracle step acc [0.758, 0.742, 0.624, 0.614, 0.594, 0.706] | answer acc 0.728
+
+FINAL EVALUATION, T = 6 oracle decoder, 1000 held-out problems
+  oracle    step numeric match per t [0.768, 0.746, 0.635, 0.617, 0.599, 0.705] | answer acc 0.725
+  copy_z0   step numeric match per t [0.031, 0.029, 0.013, 0.019, 0.008, 0.005] | answer acc 0.006
+  shuffled  step numeric match per t [0.018, 0.011, 0.013, 0.011, 0.003, 0.004] | answer acc 0.004
+saved p4_dec_T6.pt

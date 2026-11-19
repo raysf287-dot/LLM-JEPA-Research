@@ -1,0 +1,163 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 4333.02it/s]
+data ready in 69s: T=3, problems with n >= 3: train 150000, val 2000
+decoder trainable parameters: 75.7M
+predictor size top4: 247.5M trainable; oracle decoder p2_decoder_T3_run6_wide.pt
+step 100/14061 loss 1.4204 cos [0.865, 0.530, 0.540] p_free 0.00 gn 2.77 lr 2.02e-06 18s
+step 200/14061 loss 0.4844 cos [0.896, 0.864, 0.877] p_free 0.00 gn 0.65 lr 4.02e-06 36s
+step 300/14061 loss 0.4430 cos [0.905, 0.879, 0.884] p_free 0.00 gn 0.58 lr 6.02e-06 55s
+step 400/14061 loss 0.3691 cos [0.918, 0.902, 0.904] p_free 0.00 gn 0.61 lr 8.02e-06 72s
+step 500/14061 loss 0.3629 cos [0.915, 0.905, 0.908] p_free 0.00 gn 0.62 lr 1.00e-05 90s
+step 600/14061 loss 0.2966 cos [0.926, 0.922, 0.930] p_free 0.00 gn 0.54 lr 1.20e-05 108s
+step 700/14061 loss 0.3330 cos [0.919, 0.913, 0.918] p_free 0.00 gn 0.57 lr 1.40e-05 126s
+step 800/14061 loss 0.3164 cos [0.918, 0.924, 0.921] p_free 0.00 gn 0.54 lr 1.60e-05 145s
+step 900/14061 loss 0.3376 cos [0.914, 0.913, 0.920] p_free 0.00 gn 0.53 lr 1.80e-05 163s
+step 1000/14061 loss 0.2843 cos [0.923, 0.930, 0.934] p_free 0.00 gn 0.50 lr 2.00e-05 181s
+step 1100/14061 loss 0.2616 cos [0.929, 0.940, 0.935] p_free 0.00 gn 0.46 lr 2.00e-05 199s
+step 1200/14061 loss 0.2749 cos [0.925, 0.930, 0.938] p_free 0.00 gn 0.47 lr 2.00e-05 217s
+step 1300/14061 loss 0.2705 cos [0.926, 0.929, 0.941] p_free 0.00 gn 0.52 lr 2.00e-05 235s
+step 1400/14061 loss 0.2870 cos [0.920, 0.929, 0.935] p_free 0.00 gn 0.46 lr 2.00e-05 254s
+step 1500/14061 loss 0.2798 cos [0.925, 0.929, 0.936] p_free 0.00 gn 0.46 lr 1.99e-05 272s
+step 1600/14061 loss 0.2522 cos [0.931, 0.936, 0.943] p_free 0.00 gn 0.46 lr 1.99e-05 290s
+step 1700/14061 loss 0.2509 cos [0.930, 0.936, 0.946] p_free 0.00 gn 0.40 lr 1.99e-05 307s
+step 1800/14061 loss 0.2455 cos [0.938, 0.939, 0.939] p_free 0.00 gn 0.42 lr 1.98e-05 326s
+step 1900/14061 loss 0.2303 cos [0.936, 0.939, 0.952] p_free 0.00 gn 0.42 lr 1.98e-05 344s
+step 2000/14061 loss 0.2569 cos [0.930, 0.934, 0.944] p_free 0.00 gn 0.38 lr 1.97e-05 362s
+step 2100/14061 loss 0.2615 cos [0.931, 0.935, 0.939] p_free 0.00 gn 0.51 lr 1.97e-05 380s
+step 2200/14061 loss 0.2504 cos [0.929, 0.940, 0.943] p_free 0.00 gn 0.41 lr 1.96e-05 398s
+step 2300/14061 loss 0.2473 cos [0.932, 0.945, 0.938] p_free 0.00 gn 0.38 lr 1.96e-05 417s
+step 2400/14061 loss 0.2302 cos [0.940, 0.945, 0.943] p_free 0.00 gn 0.42 lr 1.95e-05 435s
+step 2500/14061 loss 0.2702 cos [0.930, 0.930, 0.938] p_free 0.00 gn 0.38 lr 1.94e-05 453s
+step 2600/14061 loss 0.2635 cos [0.924, 0.938, 0.940] p_free 0.00 gn 0.47 lr 1.93e-05 471s
+step 2700/14061 loss 0.2378 cos [0.935, 0.942, 0.944] p_free 0.00 gn 0.42 lr 1.93e-05 489s
+step 2800/14061 loss 0.2498 cos [0.932, 0.940, 0.941] p_free 0.00 gn 0.37 lr 1.92e-05 507s
+step 2900/14061 loss 0.2600 cos [0.926, 0.939, 0.940] p_free 0.00 gn 0.38 lr 1.91e-05 525s
+step 3000/14061 loss 0.2369 cos [0.928, 0.946, 0.949] p_free 0.00 gn 0.39 lr 1.90e-05 544s
+step 3100/14061 loss 0.2457 cos [0.927, 0.945, 0.943] p_free 0.00 gn 0.39 lr 1.89e-05 562s
+step 3200/14061 loss 0.2173 cos [0.944, 0.942, 0.951] p_free 0.00 gn 0.35 lr 1.88e-05 580s
+step 3300/14061 loss 0.2602 cos [0.930, 0.937, 0.938] p_free 0.00 gn 0.54 lr 1.87e-05 598s
+step 3400/14061 loss 0.2393 cos [0.928, 0.944, 0.948] p_free 0.00 gn 0.41 lr 1.85e-05 616s
+step 3500/14061 loss 0.2163 cos [0.942, 0.945, 0.951] p_free 0.00 gn 0.37 lr 1.84e-05 634s
+step 3600/14061 loss 0.2291 cos [0.936, 0.946, 0.946] p_free 0.00 gn 0.39 lr 1.83e-05 652s
+step 3700/14061 loss 0.2495 cos [0.925, 0.946, 0.942] p_free 0.00 gn 0.36 lr 1.82e-05 670s
+step 3800/14061 loss 0.2322 cos [0.936, 0.948, 0.943] p_free 0.00 gn 0.39 lr 1.80e-05 688s
+step 3900/14061 loss 0.2683 cos [0.926, 0.931, 0.941] p_free 0.00 gn 0.40 lr 1.79e-05 706s
+step 4000/14061 loss 0.2326 cos [0.934, 0.942, 0.949] p_free 0.00 gn 0.35 lr 1.78e-05 724s
+step 4100/14061 loss 0.2524 cos [0.930, 0.934, 0.946] p_free 0.00 gn 0.38 lr 1.76e-05 742s
+step 4200/14061 loss 0.2419 cos [0.933, 0.943, 0.942] p_free 0.00 gn 0.36 lr 1.75e-05 760s
+step 4300/14061 loss 0.2050 cos [0.942, 0.951, 0.953] p_free 0.00 gn 0.36 lr 1.73e-05 778s
+step 4400/14061 loss 0.2408 cos [0.935, 0.938, 0.946] p_free 0.00 gn 0.38 lr 1.72e-05 797s
+step 4500/14061 loss 0.2153 cos [0.941, 0.946, 0.952] p_free 0.00 gn 0.33 lr 1.70e-05 815s
+step 4600/14061 loss 0.2106 cos [0.941, 0.947, 0.955] p_free 0.00 gn 0.41 lr 1.68e-05 833s
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+== epoch 1: free-running cos [0.936, 0.925, 0.930] | teacher-forced cos [0.936, 0.943, 0.948] | a_t [0.346, 0.174, 0.058] | answer 0.048
+step 4700/14061 loss 0.2186 cos [0.935, 0.946, 0.954] p_free 0.00 gn 0.35 lr 1.67e-05 861s
+step 4800/14061 loss 0.2244 cos [0.941, 0.946, 0.944] p_free 0.00 gn 0.33 lr 1.65e-05 879s
+step 4900/14061 loss 0.2242 cos [0.940, 0.947, 0.945] p_free 0.00 gn 0.38 lr 1.63e-05 897s
+step 5000/14061 loss 0.2117 cos [0.943, 0.946, 0.952] p_free 0.00 gn 0.35 lr 1.61e-05 915s
+step 5100/14061 loss 0.2219 cos [0.938, 0.949, 0.946] p_free 0.00 gn 0.39 lr 1.60e-05 934s
+step 5200/14061 loss 0.2555 cos [0.930, 0.938, 0.940] p_free 0.00 gn 0.38 lr 1.58e-05 952s
+step 5300/14061 loss 0.2133 cos [0.943, 0.947, 0.950] p_free 0.00 gn 0.31 lr 1.56e-05 970s
+step 5400/14061 loss 0.2106 cos [0.942, 0.951, 0.949] p_free 0.00 gn 0.33 lr 1.54e-05 988s
+step 5500/14061 loss 0.2478 cos [0.930, 0.939, 0.945] p_free 0.00 gn 0.37 lr 1.52e-05 1006s
+step 5600/14061 loss 0.2022 cos [0.946, 0.956, 0.947] p_free 0.00 gn 0.32 lr 1.50e-05 1024s
+step 5700/14061 loss 0.1971 cos [0.949, 0.956, 0.947] p_free 0.02 gn 0.34 lr 1.48e-05 1042s
+step 5800/14061 loss 0.1844 cos [0.950, 0.955, 0.956] p_free 0.04 gn 0.32 lr 1.46e-05 1060s
+step 5900/14061 loss 0.2183 cos [0.938, 0.947, 0.951] p_free 0.07 gn 0.35 lr 1.44e-05 1079s
+step 6000/14061 loss 0.2062 cos [0.943, 0.949, 0.954] p_free 0.09 gn 0.32 lr 1.42e-05 1097s
+step 6100/14061 loss 0.2152 cos [0.937, 0.948, 0.954] p_free 0.11 gn 0.36 lr 1.40e-05 1115s
+step 6200/14061 loss 0.2321 cos [0.941, 0.940, 0.945] p_free 0.14 gn 0.36 lr 1.38e-05 1134s
+step 6300/14061 loss 0.2048 cos [0.951, 0.945, 0.951] p_free 0.16 gn 0.37 lr 1.36e-05 1152s
+step 6400/14061 loss 0.2270 cos [0.941, 0.936, 0.953] p_free 0.18 gn 0.40 lr 1.34e-05 1170s
+step 6500/14061 loss 0.2331 cos [0.941, 0.939, 0.946] p_free 0.21 gn 0.38 lr 1.32e-05 1188s
+step 6600/14061 loss 0.2261 cos [0.932, 0.943, 0.955] p_free 0.23 gn 0.37 lr 1.30e-05 1206s
+step 6700/14061 loss 0.2277 cos [0.940, 0.944, 0.945] p_free 0.25 gn 0.38 lr 1.28e-05 1224s
+step 6800/14061 loss 0.2024 cos [0.945, 0.950, 0.953] p_free 0.28 gn 0.33 lr 1.26e-05 1242s
+step 6900/14061 loss 0.2383 cos [0.939, 0.942, 0.940] p_free 0.30 gn 0.39 lr 1.24e-05 1260s
+step 7000/14061 loss 0.2376 cos [0.941, 0.940, 0.941] p_free 0.33 gn 0.49 lr 1.21e-05 1278s
+step 7100/14061 loss 0.2263 cos [0.939, 0.937, 0.954] p_free 0.35 gn 0.38 lr 1.19e-05 1296s
+step 7200/14061 loss 0.2027 cos [0.951, 0.946, 0.950] p_free 0.37 gn 0.36 lr 1.17e-05 1315s
+step 7300/14061 loss 0.2246 cos [0.942, 0.947, 0.942] p_free 0.40 gn 0.35 lr 1.15e-05 1333s
+step 7400/14061 loss 0.2644 cos [0.936, 0.935, 0.931] p_free 0.42 gn 0.41 lr 1.13e-05 1351s
+step 7500/14061 loss 0.2155 cos [0.947, 0.943, 0.948] p_free 0.44 gn 0.39 lr 1.11e-05 1369s
+step 7600/14061 loss 0.2191 cos [0.945, 0.939, 0.952] p_free 0.47 gn 0.36 lr 1.08e-05 1387s
+step 7700/14061 loss 0.2138 cos [0.939, 0.950, 0.950] p_free 0.49 gn 0.37 lr 1.06e-05 1405s
+step 7800/14061 loss 0.2266 cos [0.945, 0.941, 0.944] p_free 0.52 gn 0.40 lr 1.04e-05 1423s
+step 7900/14061 loss 0.2359 cos [0.941, 0.946, 0.936] p_free 0.54 gn 0.38 lr 1.02e-05 1441s
+step 8000/14061 loss 0.2291 cos [0.943, 0.939, 0.946] p_free 0.56 gn 0.43 lr 9.99e-06 1460s
+step 8100/14061 loss 0.2564 cos [0.942, 0.934, 0.932] p_free 0.59 gn 0.45 lr 9.77e-06 1478s
+step 8200/14061 loss 0.2252 cos [0.950, 0.942, 0.939] p_free 0.61 gn 0.45 lr 9.56e-06 1496s
+step 8300/14061 loss 0.2551 cos [0.936, 0.931, 0.942] p_free 0.63 gn 0.48 lr 9.34e-06 1515s
+step 8400/14061 loss 0.2228 cos [0.951, 0.942, 0.940] p_free 0.66 gn 0.44 lr 9.13e-06 1533s
+step 8500/14061 loss 0.2269 cos [0.946, 0.938, 0.947] p_free 0.68 gn 0.41 lr 8.92e-06 1551s
+step 8600/14061 loss 0.2295 cos [0.947, 0.938, 0.943] p_free 0.71 gn 0.38 lr 8.71e-06 1569s
+step 8700/14061 loss 0.2038 cos [0.952, 0.944, 0.951] p_free 0.73 gn 0.40 lr 8.50e-06 1587s
+step 8800/14061 loss 0.2185 cos [0.949, 0.941, 0.946] p_free 0.75 gn 0.38 lr 8.29e-06 1605s
+step 8900/14061 loss 0.2598 cos [0.939, 0.928, 0.938] p_free 0.78 gn 0.41 lr 8.09e-06 1623s
+step 9000/14061 loss 0.2727 cos [0.940, 0.924, 0.931] p_free 0.80 gn 0.41 lr 7.88e-06 1641s
+step 9100/14061 loss 0.2316 cos [0.947, 0.935, 0.943] p_free 0.82 gn 0.41 lr 7.68e-06 1659s
+step 9200/14061 loss 0.2442 cos [0.945, 0.934, 0.937] p_free 0.85 gn 0.42 lr 7.48e-06 1677s
+step 9300/14061 loss 0.2462 cos [0.944, 0.934, 0.938] p_free 0.87 gn 0.48 lr 7.28e-06 1695s
+== epoch 2: free-running cos [0.943, 0.932, 0.936] | teacher-forced cos [0.943, 0.947, 0.951] | a_t [0.406, 0.216, 0.068] | answer 0.046
+step 9400/14061 loss 0.2695 cos [0.942, 0.922, 0.934] p_free 0.89 gn 0.46 lr 7.09e-06 1723s
+step 9500/14061 loss 0.2179 cos [0.950, 0.940, 0.947] p_free 0.92 gn 0.45 lr 6.89e-06 1741s
+step 9600/14061 loss 0.2015 cos [0.951, 0.947, 0.951] p_free 0.94 gn 0.45 lr 6.70e-06 1760s
+step 9700/14061 loss 0.2074 cos [0.952, 0.945, 0.947] p_free 0.97 gn 0.38 lr 6.51e-06 1778s
+step 9800/14061 loss 0.2234 cos [0.949, 0.936, 0.948] p_free 0.99 gn 0.44 lr 6.33e-06 1796s
+step 9900/14061 loss 0.2151 cos [0.954, 0.941, 0.944] p_free 1.00 gn 0.36 lr 6.14e-06 1814s
+step 10000/14061 loss 0.2299 cos [0.947, 0.941, 0.940] p_free 1.00 gn 0.53 lr 5.96e-06 1832s
+step 10100/14061 loss 0.2366 cos [0.946, 0.941, 0.936] p_free 1.00 gn 0.44 lr 5.78e-06 1851s
+step 10200/14061 loss 0.2389 cos [0.951, 0.938, 0.932] p_free 1.00 gn 0.40 lr 5.61e-06 1869s
+step 10300/14061 loss 0.2397 cos [0.948, 0.934, 0.938] p_free 1.00 gn 0.40 lr 5.44e-06 1887s
+step 10400/14061 loss 0.2403 cos [0.947, 0.932, 0.941] p_free 1.00 gn 0.49 lr 5.27e-06 1904s
+step 10500/14061 loss 0.2288 cos [0.952, 0.939, 0.937] p_free 1.00 gn 0.39 lr 5.10e-06 1922s
+step 10600/14061 loss 0.2188 cos [0.954, 0.940, 0.942] p_free 1.00 gn 0.43 lr 4.94e-06 1940s
+step 10700/14061 loss 0.2305 cos [0.947, 0.937, 0.943] p_free 1.00 gn 0.41 lr 4.78e-06 1958s
+step 10800/14061 loss 0.2340 cos [0.949, 0.937, 0.938] p_free 1.00 gn 0.47 lr 4.63e-06 1976s
+step 10900/14061 loss 0.1754 cos [0.961, 0.953, 0.955] p_free 1.00 gn 0.35 lr 4.48e-06 1995s
+step 11000/14061 loss 0.2568 cos [0.948, 0.923, 0.936] p_free 1.00 gn 0.46 lr 4.33e-06 2013s
+step 11100/14061 loss 0.2251 cos [0.946, 0.941, 0.945] p_free 1.00 gn 0.46 lr 4.19e-06 2030s
+step 11200/14061 loss 0.2111 cos [0.953, 0.943, 0.946] p_free 1.00 gn 0.37 lr 4.05e-06 2048s
+step 11300/14061 loss 0.2203 cos [0.956, 0.940, 0.939] p_free 1.00 gn 0.42 lr 3.91e-06 2067s
+step 11400/14061 loss 0.2063 cos [0.949, 0.947, 0.949] p_free 1.00 gn 0.39 lr 3.78e-06 2085s
+step 11500/14061 loss 0.1920 cos [0.955, 0.951, 0.951] p_free 1.00 gn 0.42 lr 3.65e-06 2103s
+step 11600/14061 loss 0.2164 cos [0.953, 0.943, 0.942] p_free 1.00 gn 0.43 lr 3.53e-06 2121s
+step 11700/14061 loss 0.2331 cos [0.946, 0.941, 0.938] p_free 1.00 gn 0.42 lr 3.41e-06 2139s
+step 11800/14061 loss 0.2381 cos [0.943, 0.935, 0.943] p_free 1.00 gn 0.48 lr 3.30e-06 2158s
+step 11900/14061 loss 0.2336 cos [0.948, 0.938, 0.939] p_free 1.00 gn 0.45 lr 3.19e-06 2176s
+step 12000/14061 loss 0.2464 cos [0.945, 0.935, 0.935] p_free 1.00 gn 0.48 lr 3.08e-06 2194s
+step 12100/14061 loss 0.2102 cos [0.956, 0.941, 0.945] p_free 1.00 gn 0.39 lr 2.98e-06 2212s
+step 12200/14061 loss 0.2449 cos [0.945, 0.931, 0.940] p_free 1.00 gn 0.42 lr 2.89e-06 2231s
+step 12300/14061 loss 0.2254 cos [0.952, 0.940, 0.939] p_free 1.00 gn 0.50 lr 2.80e-06 2249s
+step 12400/14061 loss 0.2290 cos [0.951, 0.934, 0.943] p_free 1.00 gn 0.44 lr 2.71e-06 2267s
+step 12500/14061 loss 0.2178 cos [0.954, 0.935, 0.948] p_free 1.00 gn 0.42 lr 2.63e-06 2285s
+step 12600/14061 loss 0.2482 cos [0.943, 0.930, 0.940] p_free 1.00 gn 0.46 lr 2.55e-06 2303s
+step 12700/14061 loss 0.2189 cos [0.953, 0.941, 0.942] p_free 1.00 gn 0.41 lr 2.48e-06 2322s
+step 12800/14061 loss 0.2248 cos [0.952, 0.940, 0.940] p_free 1.00 gn 0.47 lr 2.41e-06 2340s
+step 12900/14061 loss 0.2448 cos [0.942, 0.934, 0.940] p_free 1.00 gn 0.42 lr 2.35e-06 2358s
+step 13000/14061 loss 0.2219 cos [0.954, 0.940, 0.940] p_free 1.00 gn 0.50 lr 2.29e-06 2376s
+step 13100/14061 loss 0.2206 cos [0.955, 0.942, 0.937] p_free 1.00 gn 0.44 lr 2.24e-06 2394s
+step 13200/14061 loss 0.2205 cos [0.955, 0.943, 0.937] p_free 1.00 gn 0.39 lr 2.19e-06 2412s
+step 13300/14061 loss 0.2307 cos [0.950, 0.936, 0.941] p_free 1.00 gn 0.46 lr 2.15e-06 2430s
+step 13400/14061 loss 0.2237 cos [0.951, 0.941, 0.940] p_free 1.00 gn 0.41 lr 2.11e-06 2448s
+step 13500/14061 loss 0.2643 cos [0.939, 0.930, 0.932] p_free 1.00 gn 0.47 lr 2.08e-06 2466s
+step 13600/14061 loss 0.2252 cos [0.950, 0.939, 0.942] p_free 1.00 gn 0.43 lr 2.06e-06 2484s
+step 13700/14061 loss 0.2150 cos [0.956, 0.941, 0.942] p_free 1.00 gn 0.38 lr 2.03e-06 2503s
+step 13800/14061 loss 0.2335 cos [0.953, 0.938, 0.934] p_free 1.00 gn 0.46 lr 2.02e-06 2520s
+step 13900/14061 loss 0.2401 cos [0.946, 0.933, 0.940] p_free 1.00 gn 0.42 lr 2.01e-06 2538s
+step 14000/14061 loss 0.2508 cos [0.945, 0.937, 0.930] p_free 1.00 gn 0.48 lr 2.00e-06 2557s
+== epoch 3: free-running cos [0.946, 0.935, 0.938] | teacher-forced cos [0.946, 0.948, 0.952] | a_t [0.442, 0.212, 0.074] | answer 0.054
+
+FINAL EVALUATION, free-running rollout, T = 3, size top4, 2000 held-out problems with n >= 3
+  t | D(t) free | D(t) teacher-forced | D_copy(t) | skill S_t [95% CI] | a_t pred | a_t copy | a_t oracle | McNemar b/c, Holm p | std ratio
+  1 | 0.0547 | 0.0547 | 0.3460 | 0.842 [0.838, 0.845] | 0.436 | 0.082 | 0.934 | 772/63, 1.5e-155 | 0.890
+  2 | 0.0649 | 0.0511 | 0.3879 | 0.833 [0.829, 0.836] | 0.232 | 0.072 | 0.903 | 390/70, 1.3e-54 | 0.849
+  3 | 0.0623 | 0.0486 | 0.4032 | 0.845 [0.842, 0.849] | 0.068 | 0.019 | 0.919 | 130/32, 3.3e-15 | 0.838
+  drift ratio R = D(T)/D(1) = 1.139 (teacher-forced 0.888; copy 1.165)
+  answer accuracy from the final state: pred 0.050 | copy 0.013 | oracle 0.932
+
+P4 T = 3, size top4:
+  validity (no collapse, std ratio >= 0.07 at every t): OK
+  S_T > 0 (95% bootstrap lower bound above zero): PASS
+  a_t above the copy baseline at every t (Holm-corrected McNemar, 0.05): PASS
+  gate: PASS
+saved p4_pred_T3_top4.pt

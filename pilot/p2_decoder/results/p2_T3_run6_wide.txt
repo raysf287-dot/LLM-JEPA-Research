@@ -1,0 +1,262 @@
+nohup: ignoring input
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 8410.61it/s]
+data ready in 74s: train 150000, val 2000, T=3
+decoder trainable parameters: 75.7M
+step 100/23435 loss 2.9147 gn 2.24 lr 1.01e-05 11s
+step 200/23435 loss 2.0174 gn 2.57 lr 2.01e-05 22s
+step 300/23435 loss 1.4084 gn 3.37 lr 3.01e-05 32s
+step 400/23435 loss 1.1495 gn 3.26 lr 4.01e-05 43s
+step 500/23435 loss 1.0578 gn 3.54 lr 5.01e-05 54s
+step 600/23435 loss 0.9484 gn 4.59 lr 6.01e-05 64s
+step 700/23435 loss 0.9241 gn 3.18 lr 7.01e-05 75s
+step 800/23435 loss 1.1294 gn 5.12 lr 8.01e-05 85s
+step 900/23435 loss 0.7927 gn 3.10 lr 9.01e-05 96s
+step 1000/23435 loss 0.8181 gn 2.78 lr 1.00e-04 107s
+step 1100/23435 loss 0.6662 gn 2.81 lr 1.00e-04 117s
+step 1200/23435 loss 0.9593 gn 3.67 lr 1.00e-04 128s
+step 1300/23435 loss 0.6840 gn 3.23 lr 1.00e-04 139s
+step 1400/23435 loss 0.6722 gn 2.53 lr 9.99e-05 149s
+step 1500/23435 loss 0.5679 gn 2.24 lr 9.99e-05 160s
+step 1600/23435 loss 0.4967 gn 1.93 lr 9.98e-05 171s
+step 1700/23435 loss 0.6028 gn 1.87 lr 9.98e-05 181s
+step 1800/23435 loss 0.7058 gn 2.73 lr 9.97e-05 192s
+step 1900/23435 loss 0.6217 gn 1.89 lr 9.96e-05 202s
+step 2000/23435 loss 0.5625 gn 2.14 lr 9.96e-05 213s
+step 2100/23435 loss 0.4451 gn 2.03 lr 9.95e-05 224s
+step 2200/23435 loss 0.5644 gn 2.13 lr 9.94e-05 235s
+step 2300/23435 loss 0.5399 gn 2.18 lr 9.93e-05 245s
+step 2400/23435 loss 0.6793 gn 2.50 lr 9.91e-05 256s
+step 2500/23435 loss 0.5686 gn 2.11 lr 9.90e-05 267s
+step 2600/23435 loss 0.5277 gn 2.13 lr 9.89e-05 277s
+step 2700/23435 loss 0.4916 gn 2.56 lr 9.87e-05 288s
+step 2800/23435 loss 0.5215 gn 2.13 lr 9.86e-05 299s
+step 2900/23435 loss 0.8174 gn 2.29 lr 9.84e-05 309s
+step 3000/23435 loss 0.6392 gn 2.01 lr 9.82e-05 320s
+step 3100/23435 loss 0.5131 gn 2.12 lr 9.81e-05 331s
+step 3200/23435 loss 0.4522 gn 2.13 lr 9.79e-05 341s
+step 3300/23435 loss 0.4888 gn 2.29 lr 9.77e-05 352s
+step 3400/23435 loss 0.4617 gn 2.06 lr 9.75e-05 363s
+step 3500/23435 loss 0.3142 gn 1.87 lr 9.73e-05 374s
+step 3600/23435 loss 0.4988 gn 2.33 lr 9.71e-05 384s
+step 3700/23435 loss 0.3414 gn 1.99 lr 9.68e-05 395s
+step 3800/23435 loss 0.3993 gn 1.51 lr 9.66e-05 405s
+step 3900/23435 loss 0.4806 gn 2.23 lr 9.63e-05 416s
+step 4000/23435 loss 0.3969 gn 2.80 lr 9.61e-05 427s
+step 4100/23435 loss 0.4329 gn 1.91 lr 9.58e-05 437s
+step 4200/23435 loss 0.4727 gn 2.02 lr 9.56e-05 448s
+step 4300/23435 loss 0.3683 gn 2.18 lr 9.53e-05 459s
+step 4400/23435 loss 0.2791 gn 1.83 lr 9.50e-05 470s
+step 4500/23435 loss 0.4001 gn 1.69 lr 9.47e-05 480s
+step 4600/23435 loss 0.3365 gn 1.68 lr 9.44e-05 491s
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+== epoch 1: val(500) oracle step acc [0.846, 0.758, 0.842] | answer acc 0.862
+step 4700/23435 loss 0.3367 gn 1.99 lr 9.41e-05 507s
+step 4800/23435 loss 0.3170 gn 1.81 lr 9.38e-05 518s
+step 4900/23435 loss 0.2690 gn 1.60 lr 9.35e-05 529s
+step 5000/23435 loss 0.3603 gn 1.95 lr 9.31e-05 539s
+step 5100/23435 loss 0.5201 gn 1.74 lr 9.28e-05 550s
+step 5200/23435 loss 0.3831 gn 1.81 lr 9.24e-05 561s
+step 5300/23435 loss 0.3952 gn 1.32 lr 9.21e-05 571s
+step 5400/23435 loss 0.3326 gn 1.93 lr 9.17e-05 582s
+step 5500/23435 loss 0.3467 gn 1.98 lr 9.14e-05 592s
+step 5600/23435 loss 0.3216 gn 1.66 lr 9.10e-05 603s
+step 5700/23435 loss 0.2803 gn 1.61 lr 9.06e-05 614s
+step 5800/23435 loss 0.2139 gn 1.55 lr 9.02e-05 624s
+step 5900/23435 loss 0.4685 gn 1.69 lr 8.98e-05 635s
+step 6000/23435 loss 0.4406 gn 1.84 lr 8.94e-05 646s
+step 6100/23435 loss 0.3370 gn 1.75 lr 8.90e-05 657s
+step 6200/23435 loss 0.3215 gn 1.85 lr 8.86e-05 667s
+step 6300/23435 loss 0.2746 gn 1.49 lr 8.82e-05 678s
+step 6400/23435 loss 0.3417 gn 1.99 lr 8.77e-05 689s
+step 6500/23435 loss 0.3689 gn 1.63 lr 8.73e-05 699s
+step 6600/23435 loss 0.3074 gn 1.81 lr 8.69e-05 710s
+step 6700/23435 loss 0.2599 gn 1.56 lr 8.64e-05 721s
+step 6800/23435 loss 0.2952 gn 2.22 lr 8.60e-05 731s
+step 6900/23435 loss 0.3505 gn 1.69 lr 8.55e-05 742s
+step 7000/23435 loss 0.2535 gn 1.68 lr 8.50e-05 753s
+step 7100/23435 loss 0.2393 gn 1.61 lr 8.46e-05 763s
+step 7200/23435 loss 0.2119 gn 1.37 lr 8.41e-05 774s
+step 7300/23435 loss 0.2752 gn 1.52 lr 8.36e-05 785s
+step 7400/23435 loss 0.4670 gn 1.89 lr 8.31e-05 796s
+step 7500/23435 loss 0.2119 gn 1.45 lr 8.26e-05 806s
+step 7600/23435 loss 0.2417 gn 1.43 lr 8.21e-05 817s
+step 7700/23435 loss 0.3841 gn 1.80 lr 8.16e-05 828s
+step 7800/23435 loss 0.3474 gn 1.74 lr 8.11e-05 838s
+step 7900/23435 loss 0.4340 gn 1.68 lr 8.06e-05 849s
+step 8000/23435 loss 0.3431 gn 1.73 lr 8.01e-05 860s
+step 8100/23435 loss 0.2570 gn 1.59 lr 7.95e-05 871s
+step 8200/23435 loss 0.3422 gn 1.79 lr 7.90e-05 881s
+step 8300/23435 loss 0.2036 gn 1.35 lr 7.85e-05 892s
+step 8400/23435 loss 0.1946 gn 1.16 lr 7.79e-05 903s
+step 8500/23435 loss 0.1774 gn 1.67 lr 7.74e-05 913s
+step 8600/23435 loss 0.3118 gn 1.70 lr 7.68e-05 924s
+step 8700/23435 loss 0.1958 gn 1.41 lr 7.63e-05 935s
+step 8800/23435 loss 0.1351 gn 1.18 lr 7.57e-05 945s
+step 8900/23435 loss 0.3329 gn 1.43 lr 7.52e-05 956s
+step 9000/23435 loss 0.1990 gn 1.34 lr 7.46e-05 967s
+step 9100/23435 loss 0.2916 gn 1.52 lr 7.40e-05 977s
+step 9200/23435 loss 0.4874 gn 1.77 lr 7.35e-05 988s
+step 9300/23435 loss 0.2376 gn 1.28 lr 7.29e-05 999s
+== epoch 2: val(500) oracle step acc [0.878, 0.838, 0.888] | answer acc 0.898
+step 9400/23435 loss 0.2320 gn 1.25 lr 7.23e-05 1019s
+step 9500/23435 loss 0.1795 gn 1.28 lr 7.17e-05 1030s
+step 9600/23435 loss 0.1743 gn 1.55 lr 7.11e-05 1040s
+step 9700/23435 loss 0.1757 gn 1.31 lr 7.05e-05 1051s
+step 9800/23435 loss 0.2252 gn 1.36 lr 6.99e-05 1062s
+step 9900/23435 loss 0.2120 gn 1.27 lr 6.93e-05 1072s
+step 10000/23435 loss 0.1594 gn 1.32 lr 6.87e-05 1083s
+step 10100/23435 loss 0.2422 gn 1.42 lr 6.81e-05 1094s
+step 10200/23435 loss 0.3154 gn 1.77 lr 6.75e-05 1105s
+step 10300/23435 loss 0.2385 gn 1.52 lr 6.69e-05 1115s
+step 10400/23435 loss 0.1659 gn 1.36 lr 6.63e-05 1126s
+step 10500/23435 loss 0.2372 gn 1.49 lr 6.57e-05 1136s
+step 10600/23435 loss 0.1730 gn 1.29 lr 6.51e-05 1147s
+step 10700/23435 loss 0.2447 gn 1.51 lr 6.45e-05 1158s
+step 10800/23435 loss 0.1279 gn 1.45 lr 6.39e-05 1168s
+step 10900/23435 loss 0.1712 gn 1.49 lr 6.33e-05 1179s
+step 11000/23435 loss 0.2493 gn 1.59 lr 6.26e-05 1190s
+step 11100/23435 loss 0.1505 gn 1.47 lr 6.20e-05 1200s
+step 11200/23435 loss 0.1814 gn 1.38 lr 6.14e-05 1211s
+step 11300/23435 loss 0.1141 gn 1.25 lr 6.08e-05 1221s
+step 11400/23435 loss 0.2081 gn 1.26 lr 6.01e-05 1232s
+step 11500/23435 loss 0.1805 gn 1.28 lr 5.95e-05 1243s
+step 11600/23435 loss 0.2658 gn 1.44 lr 5.89e-05 1254s
+step 11700/23435 loss 0.1961 gn 1.59 lr 5.83e-05 1264s
+step 11800/23435 loss 0.1423 gn 1.25 lr 5.76e-05 1275s
+step 11900/23435 loss 0.3950 gn 1.39 lr 5.70e-05 1285s
+step 12000/23435 loss 0.2712 gn 1.52 lr 5.64e-05 1296s
+step 12100/23435 loss 0.2243 gn 1.59 lr 5.57e-05 1307s
+step 12200/23435 loss 0.2145 gn 1.39 lr 5.51e-05 1318s
+step 12300/23435 loss 0.1490 gn 1.29 lr 5.45e-05 1328s
+step 12400/23435 loss 0.1657 gn 1.30 lr 5.39e-05 1339s
+step 12500/23435 loss 0.2140 gn 1.42 lr 5.32e-05 1350s
+step 12600/23435 loss 0.1135 gn 1.15 lr 5.26e-05 1360s
+step 12700/23435 loss 0.1218 gn 1.20 lr 5.20e-05 1371s
+step 12800/23435 loss 0.2140 gn 1.52 lr 5.13e-05 1382s
+step 12900/23435 loss 0.2085 gn 1.40 lr 5.07e-05 1392s
+step 13000/23435 loss 0.2853 gn 1.65 lr 5.01e-05 1403s
+step 13100/23435 loss 0.1947 gn 1.34 lr 4.95e-05 1413s
+step 13200/23435 loss 0.1623 gn 1.36 lr 4.88e-05 1424s
+step 13300/23435 loss 0.1850 gn 1.41 lr 4.82e-05 1435s
+step 13400/23435 loss 0.1775 gn 1.26 lr 4.76e-05 1445s
+step 13500/23435 loss 0.1329 gn 1.06 lr 4.70e-05 1456s
+step 13600/23435 loss 0.1720 gn 1.34 lr 4.63e-05 1467s
+step 13700/23435 loss 0.2060 gn 1.45 lr 4.57e-05 1477s
+step 13800/23435 loss 0.1925 gn 1.14 lr 4.51e-05 1488s
+step 13900/23435 loss 0.3413 gn 1.49 lr 4.45e-05 1499s
+step 14000/23435 loss 0.2418 gn 1.48 lr 4.39e-05 1510s
+== epoch 3: val(500) oracle step acc [0.918, 0.876, 0.888] | answer acc 0.908
+step 14100/23435 loss 0.1422 gn 1.11 lr 4.33e-05 1524s
+step 14200/23435 loss 0.1326 gn 1.35 lr 4.27e-05 1535s
+step 14300/23435 loss 0.1659 gn 1.06 lr 4.21e-05 1545s
+step 14400/23435 loss 0.1645 gn 1.37 lr 4.15e-05 1556s
+step 14500/23435 loss 0.1582 gn 1.36 lr 4.09e-05 1567s
+step 14600/23435 loss 0.1991 gn 1.77 lr 4.03e-05 1577s
+step 14700/23435 loss 0.1488 gn 1.53 lr 3.97e-05 1588s
+step 14800/23435 loss 0.2189 gn 1.54 lr 3.91e-05 1599s
+step 14900/23435 loss 0.1006 gn 1.08 lr 3.85e-05 1609s
+step 15000/23435 loss 0.1142 gn 1.17 lr 3.79e-05 1620s
+step 15100/23435 loss 0.1488 gn 1.27 lr 3.73e-05 1631s
+step 15200/23435 loss 0.1610 gn 1.40 lr 3.67e-05 1641s
+step 15300/23435 loss 0.0934 gn 0.99 lr 3.62e-05 1652s
+step 15400/23435 loss 0.0920 gn 1.22 lr 3.56e-05 1663s
+step 15500/23435 loss 0.1107 gn 1.27 lr 3.50e-05 1673s
+step 15600/23435 loss 0.1279 gn 1.25 lr 3.45e-05 1684s
+step 15700/23435 loss 0.1552 gn 1.41 lr 3.39e-05 1695s
+step 15800/23435 loss 0.1446 gn 1.33 lr 3.34e-05 1705s
+step 15900/23435 loss 0.1667 gn 1.26 lr 3.28e-05 1716s
+step 16000/23435 loss 0.1313 gn 1.46 lr 3.23e-05 1727s
+step 16100/23435 loss 0.0983 gn 1.09 lr 3.17e-05 1737s
+step 16200/23435 loss 0.1199 gn 1.21 lr 3.12e-05 1748s
+step 16300/23435 loss 0.1217 gn 1.37 lr 3.07e-05 1758s
+step 16400/23435 loss 0.1545 gn 1.41 lr 3.01e-05 1769s
+step 16500/23435 loss 0.1182 gn 1.15 lr 2.96e-05 1779s
+step 16600/23435 loss 0.1150 gn 1.22 lr 2.91e-05 1790s
+step 16700/23435 loss 0.1627 gn 1.36 lr 2.86e-05 1801s
+step 16800/23435 loss 0.1937 gn 1.48 lr 2.81e-05 1811s
+step 16900/23435 loss 0.1235 gn 1.41 lr 2.76e-05 1822s
+step 17000/23435 loss 0.1770 gn 1.57 lr 2.71e-05 1833s
+step 17100/23435 loss 0.1764 gn 1.48 lr 2.66e-05 1844s
+step 17200/23435 loss 0.1427 gn 1.77 lr 2.61e-05 1854s
+step 17300/23435 loss 0.1155 gn 1.29 lr 2.56e-05 1865s
+step 17400/23435 loss 0.1771 gn 1.40 lr 2.51e-05 1876s
+step 17500/23435 loss 0.1339 gn 1.32 lr 2.47e-05 1887s
+step 17600/23435 loss 0.1452 gn 1.36 lr 2.42e-05 1897s
+step 17700/23435 loss 0.1261 gn 1.37 lr 2.37e-05 1908s
+step 17800/23435 loss 0.0933 gn 1.06 lr 2.33e-05 1919s
+step 17900/23435 loss 0.0967 gn 0.99 lr 2.29e-05 1929s
+step 18000/23435 loss 0.1093 gn 1.29 lr 2.24e-05 1940s
+step 18100/23435 loss 0.0681 gn 1.11 lr 2.20e-05 1951s
+step 18200/23435 loss 0.1792 gn 1.47 lr 2.16e-05 1961s
+step 18300/23435 loss 0.1880 gn 1.51 lr 2.11e-05 1972s
+step 18400/23435 loss 0.1346 gn 1.29 lr 2.07e-05 1983s
+step 18500/23435 loss 0.1122 gn 1.29 lr 2.03e-05 1993s
+step 18600/23435 loss 0.1748 gn 1.35 lr 1.99e-05 2004s
+step 18700/23435 loss 0.1301 gn 1.22 lr 1.95e-05 2014s
+== epoch 4: val(500) oracle step acc [0.936, 0.896, 0.902] | answer acc 0.914
+step 18800/23435 loss 0.0855 gn 1.27 lr 1.92e-05 2028s
+step 18900/23435 loss 0.1134 gn 1.19 lr 1.88e-05 2039s
+step 19000/23435 loss 0.0716 gn 0.99 lr 1.84e-05 2049s
+step 19100/23435 loss 0.0830 gn 1.18 lr 1.80e-05 2060s
+step 19200/23435 loss 0.0778 gn 1.05 lr 1.77e-05 2071s
+step 19300/23435 loss 0.0660 gn 1.23 lr 1.73e-05 2082s
+step 19400/23435 loss 0.0619 gn 1.19 lr 1.70e-05 2092s
+step 19500/23435 loss 0.1408 gn 1.37 lr 1.67e-05 2103s
+step 19600/23435 loss 0.1938 gn 1.37 lr 1.63e-05 2114s
+step 19700/23435 loss 0.1065 gn 1.24 lr 1.60e-05 2125s
+step 19800/23435 loss 0.0667 gn 1.09 lr 1.57e-05 2135s
+step 19900/23435 loss 0.1063 gn 1.03 lr 1.54e-05 2146s
+step 20000/23435 loss 0.0677 gn 1.01 lr 1.51e-05 2156s
+step 20100/23435 loss 0.0948 gn 1.34 lr 1.48e-05 2167s
+step 20200/23435 loss 0.1101 gn 1.31 lr 1.45e-05 2178s
+step 20300/23435 loss 0.0789 gn 1.02 lr 1.43e-05 2188s
+step 20400/23435 loss 0.0787 gn 1.13 lr 1.40e-05 2199s
+step 20500/23435 loss 0.0872 gn 1.03 lr 1.37e-05 2209s
+step 20600/23435 loss 0.1400 gn 1.37 lr 1.35e-05 2220s
+step 20700/23435 loss 0.0760 gn 0.98 lr 1.33e-05 2231s
+step 20800/23435 loss 0.0825 gn 0.95 lr 1.30e-05 2241s
+step 20900/23435 loss 0.0591 gn 0.98 lr 1.28e-05 2252s
+step 21000/23435 loss 0.0764 gn 1.16 lr 1.26e-05 2262s
+step 21100/23435 loss 0.0564 gn 0.89 lr 1.24e-05 2273s
+step 21200/23435 loss 0.0786 gn 1.33 lr 1.22e-05 2284s
+step 21300/23435 loss 0.0952 gn 1.12 lr 1.20e-05 2295s
+step 21400/23435 loss 0.0573 gn 1.01 lr 1.18e-05 2305s
+step 21500/23435 loss 0.0753 gn 1.24 lr 1.16e-05 2316s
+step 21600/23435 loss 0.0912 gn 1.28 lr 1.15e-05 2327s
+step 21700/23435 loss 0.1617 gn 1.39 lr 1.13e-05 2338s
+step 21800/23435 loss 0.1247 gn 1.38 lr 1.12e-05 2348s
+step 21900/23435 loss 0.0671 gn 1.13 lr 1.10e-05 2359s
+step 22000/23435 loss 0.0653 gn 1.02 lr 1.09e-05 2370s
+step 22100/23435 loss 0.1132 gn 1.13 lr 1.08e-05 2380s
+step 22200/23435 loss 0.1114 gn 1.21 lr 1.07e-05 2391s
+step 22300/23435 loss 0.1037 gn 1.49 lr 1.06e-05 2402s
+step 22400/23435 loss 0.0659 gn 1.12 lr 1.05e-05 2412s
+step 22500/23435 loss 0.1531 gn 1.32 lr 1.04e-05 2423s
+step 22600/23435 loss 0.0836 gn 1.43 lr 1.03e-05 2434s
+step 22700/23435 loss 0.1022 gn 1.34 lr 1.02e-05 2444s
+step 22800/23435 loss 0.0959 gn 1.27 lr 1.02e-05 2455s
+step 22900/23435 loss 0.0442 gn 1.04 lr 1.01e-05 2466s
+step 23000/23435 loss 0.1252 gn 1.35 lr 1.01e-05 2477s
+step 23100/23435 loss 0.0412 gn 1.00 lr 1.00e-05 2487s
+step 23200/23435 loss 0.0923 gn 1.27 lr 1.00e-05 2498s
+step 23300/23435 loss 0.0633 gn 1.10 lr 1.00e-05 2509s
+step 23400/23435 loss 0.1326 gn 1.45 lr 1.00e-05 2520s
+== epoch 5: val(500) oracle step acc [0.940, 0.910, 0.908] | answer acc 0.930
+
+FINAL EVALUATION on 2000 held-out problems
+   ref: <<11+4=15>> | got: <<11+5=15>>
+   ref: <<200*3-300=300>> | got: <<200*1=200>>
+   ref: <<15*5333.34=79999.97346666666>> | got: <<15*533.34=79999.98>>
+oracle    step numeric-match per t [0.934, 0.903, 0.919] | full-text match [0.818, 0.729, 0.678] | answer acc 0.932
+copy_z0   step numeric-match per t [0.082, 0.072, 0.019] | full-text match [0.012, 0.021, 0.001] | answer acc 0.013
+shuffled  step numeric-match per t [0.019, 0.018, 0.002] | full-text match [0.000, 0.004, 0.000] | answer acc 0.002
+P2 gate (oracle numeric match >= 90% at every t): PASS
+
+STRATIFIED oracle step accuracy by the reference result of that step
+all                            n=1998 acc=0.935 | n=1999 acc=0.903 | n=2000 acc=0.919
+integer                        n=1860 acc=0.945 | n=1773 acc=0.923 | n=1751 acc=0.955
+non-integer                    n= 138 acc=0.797 | n= 226 acc=0.752 | n= 249 acc=0.671
+integer, |v| < 100             n=1274 acc=0.954 | n=1170 acc=0.929 | n=1017 acc=0.965
+integer, 100 <= |v| < 10000    n= 561 acc=0.934 | n= 572 acc=0.918 | n= 683 acc=0.946
+|v| >= 10000                   n=  25 acc=0.760 | n=  32 acc=0.750 | n=  52 acc=0.865
+clean subset (all steps integer, <10000): n = 1587 per-t [0.957, 0.933, 0.962]

@@ -1,0 +1,11 @@
+['.gitattributes', 'README.md', 'gsm8k_aug_nl.json']
+===== gsm8k_aug_nl.json
+{
+    "question": [
+        "Jen shared a pack of chocolates among her friends. She gave 20% to Lucy, 30% to Sarah and the remaining were shared equally among four others. If the pack contained 100 chocolates, how many chocolates were each of the four others getting?",
+        "A cafeteria made a fruit salad that contained 5 different fruits. The salad contained 20 apples, twice as many strawberries as apples, 15 times as many grapes as strawberries, and twice as many oranges as grapes. How many fruits are in total in the salad?",
+        "Allison and Emma are building sandcastles. Emma's castle takes twice as long as Allison's to build. Maya, who is watching, spends three times as long just observing as it takes Allison to build her castle. If in total, they spend 36 hours, how many hours does Allison spend on building her sandcastle?",
+        "Andy receives a monthly salary of $800 but he has to pay a tax of 7%. How much is his net salary?",
+        "A local school was selling 50 candies to raise money for their gardening project.  Each candy cost $1.50 apiece.  They sold all the candies and also received 3 $20 donations.  How much money did they raise?",
+        "Julia buys a pack of candies which has a total of 120 pieces. She has 4 friends and decides to share the candies equally among herself and her friends. How many candies does each get?",
+        "Anna delivers flowers for a local florist. Each bouquet costs 15 dollars and the delivery charge is 3 extra dollars if 

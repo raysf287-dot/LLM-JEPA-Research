@@ -1,0 +1,392 @@
+--- src/finetune_step_original.py	2026-11-20 10:36:53.110995035 +1300
++++ src/finetune_step.py	2026-11-20 10:21:25.148164000 +1300
+@@ -59,9 +59,38 @@
+         return messages[2:3]
+ 
+ 
++
++MAX_STEPS = 12
++PAD_FIX = False
++ATTN_DROPOUT = 0.0
++
++
++def compute_step_positions(tokenizer, formatted, content, max_length, add_special_tokens):
++    """Token index of every newline in the assistant content (end of each reasoning line).
++    Causal attention makes the hidden state there a summary of the solution prefix up to that line.
++    Padded with -1 to MAX_STEPS."""
++    enc = tokenizer(formatted, truncation=True, max_length=max_length, return_offsets_mapping=True,
++                    add_special_tokens=add_special_tokens)
++    offsets = enc["offset_mapping"]
++    base = formatted.rfind(content)
++    assert base >= 0, "assistant content not found in formatted chat"
++    out = []
++    for c, ch in enumerate(content):
++        if ch != "\n":
++            continue
++        pos = base + c
++        for ti, (a, b) in enumerate(offsets):
++            if a <= pos < b:
++                out.append(ti)
++                break
++    out = out[:MAX_STEPS]
++    return out + [-1] * (MAX_STEPS - len(out))
++
++
+ def load_and_prepare_dataset(data_file, tokenizer, model_name,
+                              max_length=2048, debug=0, predictors=0, regular=False, train_all=False,
+-                             plain=False, front_pred=False, reverse_pred=False, unmask_assistant_special_tokens=False):
++                             plain=False, front_pred=False, reverse_pred=False, unmask_assistant_special_tokens=False,
++                             step_targets=False):
+     """Load JSONL dataset and format for training with proper label masking"""
+     
+     # Load dataset
+@@ -80,6 +109,7 @@
+         assistant_input_ids_list = []
+         assistant_labels_list = []
+         assistant_attention_mask_list = []
++        step_pos_list = []
+ 
+         for msg_idx, messages in enumerate(examples['messages']):
+             # Apply chat template if available, otherwise format manually
+@@ -187,6 +217,9 @@
+             assistant_input_ids_list.append(tokenized_assistant["input_ids"])
+             assistant_labels_list.append([-100] * len(tokenized_assistant["input_ids"]))
+             assistant_attention_mask_list.append(tokenized_assistant["attention_mask"])
++            if step_targets:
++                step_pos_list.append(compute_step_positions(tokenizer, formatted_chat_assistant, assistant_messages[0]["content"],
++                                                            max_length, not unmask_assistant_special_tokens))
+ 
+             if debug == 3 and torch.cuda.current_device() == 0:
+                 print(messages)
+@@ -220,6 +253,7 @@
+                 "input_ids_assistant": assistant_input_ids_list,
+                 "labels_assistant": assistant_labels_list,
+                 "attention_mask_assistant": assistant_attention_mask_list,
++                **({"step_pos_assistant": step_pos_list} if step_targets else {}),
+             }
+     
+     # def format_messages_manually(messages):
+@@ -447,6 +481,10 @@
+             print(f"Added {len(new_tokens)} new special tokens")
+     
+     # Set pad token
++    if PAD_FIX:  # keep <|eot_id|> trainable: pad with a different reserved token
++        pid = tokenizer.convert_tokens_to_ids("<|finetune_right_pad_id|>")
++        assert pid is not None and pid != tokenizer.unk_token_id and pid != tokenizer.eos_token_id, pid
++        tokenizer.pad_token = "<|finetune_right_pad_id|>"
+     if tokenizer.pad_token is None:
+         tokenizer.pad_token = tokenizer.eos_token
+     
+@@ -489,6 +527,7 @@
+             # Add these for better multi-GPU stability
+             low_cpu_mem_usage=True,
+             use_cache=False,  # Disable KV cache for training
++            attention_dropout=ATTN_DROPOUT,
+         )
+ 
+     if new_tokens:
+@@ -516,6 +555,17 @@
+     return model, tokenizer
+ 
+ 
++class ResHead(nn.Module):
++    """Predictor head on the question side: x + MLP(x), last layer zero-initialised (starts as identity)."""
++    def __init__(self, d):
++        super().__init__()
++        self.net = nn.Sequential(nn.Linear(d, d), nn.GELU(), nn.Linear(d, d))
++        nn.init.zeros_(self.net[2].weight); nn.init.zeros_(self.net[2].bias)
++
++    def forward(self, x):
++        return x + self.net(x)
++
++
+ class RepresentationTrainer(Trainer):
+     """
+     Trainer to regularize representations.
+@@ -532,6 +582,22 @@
+         self.jepa_mse = kwargs.pop('jepa_mse', False)
+         self.infonce = kwargs.pop('infonce', False)
+         self.jepa_ratio = kwargs.pop('jepa_ratio', -1.0)
++        self.step_targets = kwargs.pop('step_targets', False)
++        self.stopgrad = kwargs.pop('stopgrad', False)
++        self.jepa_layer = kwargs.pop('jepa_layer', -1)
++        self.center = kwargs.pop('center', False)
++        self.batch_center = kwargs.pop('batch_center', False)
++        self.var_coef = kwargs.pop('var_coef', 0.0)
++        self._mu_u = None; self._mu_a = None
++        self.shuffle_targets = kwargs.pop('shuffle_targets', False)
++        self.const_target = kwargs.pop('const_target', False)
++        self.noise_target = kwargs.pop('noise_target', False)
++        self._const_v = None
++        self.n_pred = kwargs.pop('n_pred', 0)
++        self._call = 0
++        if self.step_targets:
++            assert not self.additive_mask, 'step_targets is not implemented for --additive_mask'
++            assert self.n_pred >= 1, 'step_targets needs --predictors >= 1'
+         assert self.jepa_l2 + self.jepa_mse <= 1, "Only one of jepa_l2 and jepa_mse can be True."
+         super().__init__(*args, **kwargs)
+     
+@@ -661,8 +727,8 @@
+                 assistant_hidden_states = user_hidden_states
+         else:
+             batch_size = llm_inputs["input_ids"].shape[0] // 3
+-            user_hidden_states = outputs.hidden_states[-1][batch_size: batch_size * 2]
+-            assistant_hidden_states = outputs.hidden_states[-1][batch_size * 2:]
++            user_hidden_states = outputs.hidden_states[self.jepa_layer][batch_size: batch_size * 2]
++            assistant_hidden_states = outputs.hidden_states[self.jepa_layer][batch_size * 2:]
+ 
+         if self.debug == 2 and torch.cuda.current_device() == 0:
+             print(f"====={user_hidden_states.shape}=====")
+@@ -675,6 +741,34 @@
+             'assistant_hidden_states': assistant_hidden_states,
+         }
+ 
++    def _step_pairs(self, user_hs, asst_hs, index_user, index_assistant, step_pos):
++        """Predictor token j (1..k) is paired with the assistant state after step ceil(j*N/k) of N targets.
++        Targets = newline states (one per reasoning line) + the final answer state (the original LLM-JEPA target).
++        Token k therefore always keeps the original term."""
++        k = self.n_pred
++        U, A = [], []
++        for b in range(user_hs.shape[0]):
++            valid = [int(p) for p in step_pos[b].tolist() if p >= 0]
++            targets = valid + [int(index_assistant[b])]
++            N = len(targets)
++            for j in range(1, k + 1):
++                t = targets[-(-j * N // k) - 1]
++                U.append(user_hs[b, int(index_user[b]) - (k - j), :])
++                A.append(asst_hs[b, t, :])
++        return torch.stack(U), torch.stack(A)
++
++    @staticmethod
++    def _var_pen(u, a):
++        """VICReg-style variance penalty on unit-normalised, batch-centred embeddings rescaled so that an
++        isotropic spread has per-coordinate std 1. Penalises dimensional collapse."""
++        pen = 0.0
++        for x in (u, a):
++            x = x - x.mean(0, keepdim=True)
++            z = F.normalize(x, dim=-1) * (x.shape[-1] ** 0.5)
++            std = torch.sqrt(z.var(dim=0) + 1e-4)
++            pen = pen + F.relu(1.0 - std).mean()
++        return pen / 2
++
+     def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+         """
+         Compute loss with additional regularization terms.
+@@ -707,9 +801,40 @@
+             if self.additive_mask:
+                 index_user = self._last_token_user
+                 index_assistant = self._last_token_assistant
+-            user_embedding = user_hidden_states[range(first_dim), index_user, :]
+-            assistant_embedding = assistant_hidden_states[range(first_dim), index_assistant, :]
+-            
++            if self.step_targets:
++                user_embedding, assistant_embedding = self._step_pairs(
++                    user_hidden_states, assistant_hidden_states, index_user, index_assistant,
++                    inputs["step_pos_assistant"])
++            else:
++                user_embedding = user_hidden_states[range(first_dim), index_user, :]
++                assistant_embedding = assistant_hidden_states[range(first_dim), index_assistant, :]
++            if self.shuffle_targets:  # control: pair each question with another problem's solution state
++                assistant_embedding = assistant_embedding.roll(1, dims=0)
++            if self.stopgrad:
++                assistant_embedding = assistant_embedding.detach()
++            if self.noise_target:  # control: random per-example target, no data content
++                assistant_embedding = torch.randn_like(assistant_embedding.detach())
++            if self.const_target:  # control: fixed random direction, independent of the data
++                if self._const_v is None:
++                    g = torch.Generator().manual_seed(1234)
++                    self._const_v = F.normalize(torch.randn(assistant_embedding.shape[-1], generator=g), dim=0).to(assistant_embedding.device)
++                assistant_embedding = self._const_v.to(assistant_embedding.dtype).unsqueeze(0).expand_as(assistant_embedding)
++            user_embedding = user_embedding.float(); assistant_embedding = assistant_embedding.float()
++            if self.batch_center:  # centre with the current batch's own mean: residuals cannot share a direction
++                user_embedding = user_embedding - user_embedding.mean(0, keepdim=True)
++                assistant_embedding = assistant_embedding - assistant_embedding.mean(0, keepdim=True)
++            elif self.center:  # DINO-style centring with an EMA of each view's mean: removes the shared common-mode direction
++                with torch.no_grad():
++                    bu, ba = user_embedding.mean(0), assistant_embedding.mean(0)
++                    if self._mu_u is None:
++                        self._mu_u, self._mu_a = bu.clone(), ba.clone()
++                    mu_u, mu_a = self._mu_u.clone(), self._mu_a.clone()
++                    self._mu_u = 0.99 * self._mu_u + 0.01 * bu; self._mu_a = 0.99 * self._mu_a + 0.01 * ba
++                user_embedding = user_embedding - mu_u; assistant_embedding = assistant_embedding - mu_a
++            head = getattr(self.accelerator.unwrap_model(model), 'jepa_head', None)
++            if head is not None:
++                user_embedding = head(user_embedding)
++
+             # Compute cosine similarity
+             cosine_similarity = F.cosine_similarity(user_embedding, assistant_embedding, dim=-1)
+             if self.debug == 1 and torch.cuda.current_device() == 0:
+@@ -736,7 +861,15 @@
+         else:
+             jepa_loss = 0.0
+ 
++        if user_hidden_states is not None and self.var_coef > 0:
++            assert user_embedding.shape[0] >= 4, 'variance penalty needs a batch of at least 4'
++            vp = self._var_pen(user_embedding, assistant_embedding)
++            self._last_var = float(vp)
++            jepa_loss = jepa_loss + self.var_coef * vp
+         total_loss = self.gamma * lm_loss + self.lbd * jepa_loss
++        self._call += 1
++        if user_hidden_states is not None and self._call % 64 == 0 and torch.cuda.current_device() == 0:
++            print(f"[jepa] call={self._call} lm={lm_loss.item():.4f} jepa={float(jepa_loss):.4f} cos={cosine_similarity.mean().item():.4f} cos_rolled={F.cosine_similarity(user_embedding.detach(), assistant_embedding.detach().roll(1, 0), dim=-1).mean().item():.4f} var={getattr(self, '_last_var', 0.0):.4f}")
+ 
+         if self.debug == 2 and torch.cuda.current_device() == 0:
+             print(lm_loss, self.lbd, torch.mean(cosine_similarity))
+@@ -750,6 +883,66 @@
+         return (total_loss, main_outputs) if return_outputs else total_loss
+ 
+ 
++class AnswerOnlyCollator:
++    """Wrap a collator and mask every label up to and including the last assistant header."""
++    def __init__(self, base, tokenizer):
++        self.base = base
++        self.header = tokenizer.encode("<|start_header_id|>assistant<|end_header_id|>\n\n", add_special_tokens=False)
++        self._shown = False
++    def __call__(self, features):
++        b = self.base(features)
++        ids, lab = b["input_ids"], b["labels"]
++        H = len(self.header); h = torch.tensor(self.header)
++        for r in range(ids.shape[0]):
++            row = ids[r]; start = None
++            for i in range(row.shape[0] - H, -1, -1):
++                if torch.equal(row[i:i + H], h): start = i + H; break
++            assert start is not None, "assistant header not found"
++            lab[r, :start] = -100
++        if not self._shown and torch.cuda.current_device() == 0:
++            print(f"[answer_only] first batch: label tokens per row = {(lab != -100).sum(1).tolist()} of {lab.shape[1]}", flush=True)
++            self._shown = True
++        b["labels"] = lab
++        return b
++
++
++class FootprintCallback(TrainerCallback):
++    """Per-epoch main-view LM loss on held-out and train subsets, plus relative weight drift from init."""
++    def __init__(self, trainer_ref, train_ds, eval_ds, collator, out_path, n=300, bs=8):
++        self.tr = trainer_ref; self.out = out_path; self.bs = bs; self.collator = collator
++        self.eval_ds = eval_ds.select(range(min(n, len(eval_ds))))
++        self.train_ds = train_ds.shuffle(seed=0).select(range(min(n, len(train_ds))))
++        self.init = None
++    def _snap(self, model):
++        return [p.detach().float().cpu().clone() for p in model.parameters()]
++    def _loss(self, model, ds):
++        keep = ("input_ids", "attention_mask", "labels")
++        tot, cnt = 0.0, 0
++        model.eval()
++        with torch.no_grad():
++            for i in range(0, len(ds), self.bs):
++                feats = [{k: ds[j][k] for k in ("input_ids", "attention_mask") } for j in range(i, min(i + self.bs, len(ds)))]
++                b = self.collator(feats)
++                b = {k: v.to(model.device) for k, v in b.items() if k in keep}
++                out = model(**b)
++                n_tok = int((b["labels"][:, 1:] != -100).sum())
++                tot += float(out.loss) * n_tok; cnt += n_tok
++        model.train()
++        return tot / max(cnt, 1)
++    def on_train_begin(self, args, state, control, model=None, **kw):
++        self.init = self._snap(model)
++    def on_epoch_end(self, args, state, control, model=None, **kw):
++        if torch.cuda.current_device() != 0: return
++        num = den = 0.0
++        for p, p0 in zip(model.parameters(), self.init):
++            d = p.detach().float().cpu() - p0
++            num += float((d ** 2).sum()); den += float((p0 ** 2).sum())
++        rec = dict(epoch=round(state.epoch, 2), step=state.global_step, heldout_lm=self._loss(model, self.eval_ds),
++                   train_lm=self._loss(model, self.train_ds), rel_drift=(num / den) ** 0.5)
++        print("[footprint]", rec, flush=True)
++        with open(self.out, "a") as f: f.write(json.dumps(rec) + "\n")
++
++
+ class ProfilerFLOPCallback(TrainerCallback):
+     def __init__(self, profile_steps=10):
+         self.profile_steps = profile_steps
+@@ -814,9 +1007,27 @@
+     parser.add_argument("--same_flop", action="store_true", help="When set, Use same number of flops per epoch.")
+     parser.add_argument("--jepa_ratio", type=float, default=-1.0, help="When >0, randomly select this ratio of batches to apply JEPA. This implments Random JEPA-Loss Dropout (LD). If LD = alpha, jepa_ratio = 1 - alpha")
+     parser.add_argument("--use_default_data_collator", action="store_true", help="When set, Use `default_data_collator`.")
++    parser.add_argument("--step_targets", action="store_true", help="One JEPA term per solution step (needs --predictors>=1).")
++    parser.add_argument("--pad_fix", action="store_true", help="Pad with <|finetune_right_pad_id|> so <|eot_id|> labels are not masked.")
++    parser.add_argument("--jepa_layer", type=int, default=-1, help="hidden_states index used for both views (default -1 = last, post-norm).")
++    parser.add_argument("--center", action="store_true", help="Centre each view with an EMA of its batch mean before the cosine.")
++    parser.add_argument("--batch_center", action="store_true", help="Centre each view with the current batch mean (needs batch >= 4).")
++    parser.add_argument("--var_coef", type=float, default=0.0, help="Weight of the VICReg-style variance penalty (0 = off).")
++    parser.add_argument("--proj_head", action="store_true", help="Residual MLP predictor head on the question side.")
++    parser.add_argument("--shuffle_targets", action="store_true", help="Control: pair each question with a different problem's solution embedding.")
++    parser.add_argument("--const_target", action="store_true", help="Control: pull the question state toward one fixed random unit vector (no data content).")
++    parser.add_argument("--answer_only", action="store_true", help="Compute the LM loss only on the assistant reply (mask the prompt tokens).")
++    parser.add_argument("--noise_target", action="store_true", help="Control: target is a fresh random Gaussian vector per example and step (varies, but carries no data content).")
++    parser.add_argument("--weight_decay", type=float, default=0.0, help="Weight decay (generic-regulariser control).")
++    parser.add_argument("--attn_dropout", type=float, default=0.0, help="Attention dropout (generic-regulariser control).")
++    parser.add_argument("--footprint_file", type=str, default=None, help="Held-out JSONL: log per-epoch held-out/train LM loss and weight drift to footprint.jsonl.")
++    parser.add_argument("--stopgrad", action="store_true", help="Detach the solution-view (target) embedding.")
+     parser.add_argument("--unmask_assistant_special_tokens", action="store_true", help="When set, unmask assistant special tokens.")
+ 
+     args = parser.parse_args()
++    global PAD_FIX, ATTN_DROPOUT
++    PAD_FIX = args.pad_fix
++    ATTN_DROPOUT = args.attn_dropout
+     
+     # Validate arguments
+     if not args.train_file and not args.data_file:
+@@ -860,6 +1071,8 @@
+     model, tokenizer = setup_model_and_tokenizer(
+         args.model_name, use_lora=args.lora, lora_rank=args.lora_rank, pretrain=args.pretrain,
+         debug=args.debug, seed=args.finetune_seed)
++    if args.proj_head:
++        model.jepa_head = ResHead(model.config.hidden_size).float()
+     
+     # Load and prepare dataset
+     if torch.cuda.current_device() == 0:
+@@ -874,7 +1087,8 @@
+             args.max_length, predictors=args.predictors, regular=args.regular,
+             debug=args.debug, train_all=args.train_all, plain=args.plain,
+             front_pred=args.front_pred, reverse_pred=args.reverse_pred,
+-            unmask_assistant_special_tokens=args.unmask_assistant_special_tokens
++            unmask_assistant_special_tokens=args.unmask_assistant_special_tokens,
++            step_targets=args.step_targets
+         )
+         
+         if args.eval_file:
+@@ -934,6 +1148,9 @@
+             pad_to_multiple_of=None,  # We already padded to max_length
+         )
+     
++    if args.answer_only:
++        data_collator = AnswerOnlyCollator(data_collator, tokenizer)
++
+     # Training arguments - optimized for multi-GPU stability
+     eval_steps = args.eval_steps if not args.pretrain else args.eval_steps * 20
+     save_steps = len(train_dataset) // (world_size * args.batch_size * args.grad_accum)
+@@ -962,6 +1179,7 @@
+         per_device_eval_batch_size=args.batch_size,
+         gradient_accumulation_steps=args.grad_accum,
+         learning_rate=args.learning_rate,
++        weight_decay=args.weight_decay,
+         num_train_epochs=args.num_epochs,
+         
+         # Evaluation
+@@ -1042,8 +1260,25 @@
+             jepa_mse=args.jepa_mse,
+             infonce=args.infonce,
+             jepa_ratio=args.jepa_ratio,
++            step_targets=args.step_targets,
++            stopgrad=args.stopgrad,
++            shuffle_targets=args.shuffle_targets,
++            const_target=args.const_target,
++            noise_target=args.noise_target,
++            jepa_layer=args.jepa_layer,
++            center=args.center,
++            batch_center=args.batch_center,
++            var_coef=args.var_coef,
++            n_pred=args.predictors,
+         )
+     
++    if args.footprint_file:
++        fp_ds = load_and_prepare_dataset(
++            args.footprint_file, tokenizer, args.model_name, args.max_length, regular=args.regular,
++            debug=args.debug, train_all=args.train_all, plain=args.plain,
++            front_pred=args.front_pred, reverse_pred=args.reverse_pred,
++            unmask_assistant_special_tokens=args.unmask_assistant_special_tokens)
++        trainer.add_callback(FootprintCallback(trainer, train_dataset, fp_ds, data_collator, os.path.join(output_dir, "footprint.jsonl")))
+     if torch.cuda.current_device() == 0 and args.lora:
+         print("=== PEFT Model Check ===")
+         model.print_trainable_parameters()

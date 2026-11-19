@@ -1,0 +1,9 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 3512.98it/s]
+
+T=2: 2000 problems with n>=2; with an alternative valid ordering: 686 (34.3%)
+(iii) within-problem cosine distance per t: [0.0321 0.0141] | between-problem: [0.343  0.3185]
+      ratio per t: [0.094 0.044] | overall ratio: 0.07 | proposed gate <=0.5: PASS
+
+T=3: 2000 problems with n>=3; with an alternative valid ordering: 1143 (57.1%)
+(iii) within-problem cosine distance per t: [0.0655 0.0366 0.0148] | between-problem: [0.3493 0.33   0.3091]
+      ratio per t: [0.187 0.111 0.048] | overall ratio: 0.118 | proposed gate <=0.5: PASS

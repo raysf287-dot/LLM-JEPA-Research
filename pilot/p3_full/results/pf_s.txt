@@ -1,0 +1,349 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights:  58%|█████▊    | 85/146 [00:00<00:00, 814.36it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 808.52it/s]
+data ready in 99s: train 366295, val_all 2000, val_one 2000, GSM8K test 1319 (1208 with a usable reference chain)
+decoder 25.3M | predictor 42.5M (s) | LoRA 90.2M (rank 128)
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+start: copy cosine cos(z0, z*) 0.659 | target spread (mean per-dimension std) 0.01253
+schedule: 31250 steps of 32; encoder frozen for the first 15625 steps, then LoRA + EMA target (tau 0.996)
+/workspace/latentcot/p3_full.py:391: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  print(f"step {step}/{total} {'P2' if phase2 else 'P1'} lat {float(l_lat):.4f} dec {float(l_dec):.4f} cos {cos.mean().item():.4f} "
+step 100/31250 P1 lat 0.7762 dec 8.2633 cos 0.8059 gn 1.05 21s
+step 200/31250 P1 lat 0.7400 dec 4.6075 cos 0.8150 gn 0.60 42s
+step 300/31250 P1 lat 0.5714 dec 4.0700 cos 0.8571 gn 0.76 64s
+step 400/31250 P1 lat 0.5534 dec 3.6008 cos 0.8616 gn 0.87 85s
+step 500/31250 P1 lat 0.5368 dec 3.5799 cos 0.8658 gn 1.96 106s
+step 600/31250 P1 lat 0.4792 dec 3.4080 cos 0.8802 gn 1.09 127s
+step 700/31250 P1 lat 0.4299 dec 3.0983 cos 0.8925 gn 0.98 148s
+step 800/31250 P1 lat 0.4503 dec 2.7964 cos 0.8874 gn 0.97 169s
+step 900/31250 P1 lat 0.4180 dec 2.6644 cos 0.8955 gn 0.81 190s
+step 1000/31250 P1 lat 0.3757 dec 2.6142 cos 0.9061 gn 0.80 211s
+step 1100/31250 P1 lat 0.4187 dec 2.5616 cos 0.8953 gn 0.63 233s
+step 1200/31250 P1 lat 0.4043 dec 2.7454 cos 0.8989 gn 0.64 254s
+step 1300/31250 P1 lat 0.3977 dec 2.1953 cos 0.9006 gn 0.65 275s
+step 1400/31250 P1 lat 0.3755 dec 2.3915 cos 0.9061 gn 0.77 297s
+step 1500/31250 P1 lat 0.3669 dec 2.1050 cos 0.9083 gn 0.75 318s
+step 1600/31250 P1 lat 0.3645 dec 2.1410 cos 0.9089 gn 0.61 339s
+step 1700/31250 P1 lat 0.3551 dec 2.0944 cos 0.9112 gn 0.62 360s
+step 1800/31250 P1 lat 0.3423 dec 1.9681 cos 0.9144 gn 0.60 382s
+step 1900/31250 P1 lat 0.3491 dec 1.6899 cos 0.9127 gn 0.63 403s
+step 2000/31250 P1 lat 0.3582 dec 1.6600 cos 0.9104 gn 0.67 424s
+step 2100/31250 P1 lat 0.3560 dec 2.4368 cos 0.9110 gn 0.73 445s
+step 2200/31250 P1 lat 0.3514 dec 1.6795 cos 0.9122 gn 0.61 466s
+step 2300/31250 P1 lat 0.3000 dec 1.7359 cos 0.9250 gn 0.64 487s
+step 2400/31250 P1 lat 0.3265 dec 2.0198 cos 0.9184 gn 0.77 508s
+step 2500/31250 P1 lat 0.3231 dec 1.9772 cos 0.9192 gn 0.70 530s
+step 2600/31250 P1 lat 0.3076 dec 1.4803 cos 0.9231 gn 0.52 551s
+step 2700/31250 P1 lat 0.3042 dec 1.3623 cos 0.9239 gn 0.50 572s
+step 2800/31250 P1 lat 0.2918 dec 1.6765 cos 0.9270 gn 0.53 594s
+step 2900/31250 P1 lat 0.2667 dec 1.4279 cos 0.9333 gn 0.44 615s
+step 3000/31250 P1 lat 0.2957 dec 1.6081 cos 0.9261 gn 0.47 636s
+step 3100/31250 P1 lat 0.3544 dec 1.9072 cos 0.9114 gn 0.52 658s
+step 3200/31250 P1 lat 0.3367 dec 1.8060 cos 0.9158 gn 0.64 678s
+step 3300/31250 P1 lat 0.2903 dec 1.5431 cos 0.9274 gn 0.57 700s
+step 3400/31250 P1 lat 0.2958 dec 1.5691 cos 0.9260 gn 0.46 721s
+step 3500/31250 P1 lat 0.3306 dec 1.5672 cos 0.9174 gn 0.59 743s
+step 3600/31250 P1 lat 0.2862 dec 1.4136 cos 0.9285 gn 0.55 764s
+step 3700/31250 P1 lat 0.2998 dec 1.4767 cos 0.9251 gn 0.51 786s
+step 3800/31250 P1 lat 0.2970 dec 1.2824 cos 0.9257 gn 0.45 807s
+step 3900/31250 P1 lat 0.2840 dec 1.2851 cos 0.9290 gn 0.41 828s
+step 4000/31250 P1 lat 0.2875 dec 1.4358 cos 0.9281 gn 0.49 849s
+step 4100/31250 P1 lat 0.2921 dec 1.5209 cos 0.9270 gn 0.48 871s
+step 4200/31250 P1 lat 0.2807 dec 1.4663 cos 0.9298 gn 0.44 892s
+step 4300/31250 P1 lat 0.3494 dec 1.3205 cos 0.9126 gn 0.46 913s
+step 4400/31250 P1 lat 0.3115 dec 1.4047 cos 0.9221 gn 0.45 935s
+step 4500/31250 P1 lat 0.3016 dec 1.3102 cos 0.9246 gn 0.51 956s
+step 4600/31250 P1 lat 0.3172 dec 1.3772 cos 0.9207 gn 0.47 978s
+step 4700/31250 P1 lat 0.2929 dec 1.3797 cos 0.9268 gn 0.49 999s
+step 4800/31250 P1 lat 0.3167 dec 1.2389 cos 0.9208 gn 0.39 1020s
+step 4900/31250 P1 lat 0.3585 dec 2.0046 cos 0.9104 gn 0.59 1042s
+step 5000/31250 P1 lat 0.3026 dec 1.4797 cos 0.9243 gn 0.46 1063s
+step 5100/31250 P1 lat 0.2694 dec 1.4902 cos 0.9327 gn 0.46 1085s
+step 5200/31250 P1 lat 0.2653 dec 1.1623 cos 0.9337 gn 0.41 1106s
+step 5300/31250 P1 lat 0.2718 dec 1.3818 cos 0.9321 gn 0.43 1127s
+step 5400/31250 P1 lat 0.2855 dec 1.6245 cos 0.9286 gn 0.51 1149s
+step 5500/31250 P1 lat 0.2751 dec 1.2092 cos 0.9312 gn 0.42 1170s
+step 5600/31250 P1 lat 0.3066 dec 1.2312 cos 0.9233 gn 0.41 1192s
+step 5700/31250 P1 lat 0.2721 dec 1.2390 cos 0.9320 gn 0.41 1213s
+step 5800/31250 P1 lat 0.3018 dec 1.4951 cos 0.9245 gn 0.60 1234s
+step 5900/31250 P1 lat 0.2966 dec 1.0670 cos 0.9258 gn 0.41 1255s
+step 6000/31250 P1 lat 0.2981 dec 1.2205 cos 0.9255 gn 0.41 1277s
+step 6100/31250 P1 lat 0.2526 dec 1.5147 cos 0.9368 gn 0.39 1298s
+step 6200/31250 P1 lat 0.2870 dec 1.4746 cos 0.9282 gn 0.43 1319s
+step 6300/31250 P1 lat 0.3052 dec 1.1959 cos 0.9237 gn 0.37 1341s
+step 6400/31250 P1 lat 0.2653 dec 1.0098 cos 0.9337 gn 0.40 1362s
+step 6500/31250 P1 lat 0.2952 dec 1.2596 cos 0.9262 gn 0.46 1383s
+step 6600/31250 P1 lat 0.3374 dec 1.3054 cos 0.9156 gn 0.40 1405s
+step 6700/31250 P1 lat 0.3425 dec 1.4847 cos 0.9144 gn 0.51 1426s
+step 6800/31250 P1 lat 0.2532 dec 1.0769 cos 0.9367 gn 0.37 1447s
+step 6900/31250 P1 lat 0.2888 dec 0.9298 cos 0.9278 gn 0.39 1469s
+step 7000/31250 P1 lat 0.2734 dec 1.2285 cos 0.9316 gn 0.41 1490s
+step 7100/31250 P1 lat 0.2723 dec 1.0125 cos 0.9319 gn 0.36 1511s
+step 7200/31250 P1 lat 0.2542 dec 1.0486 cos 0.9364 gn 0.38 1533s
+step 7300/31250 P1 lat 0.2912 dec 1.3034 cos 0.9272 gn 0.38 1554s
+step 7400/31250 P1 lat 0.2637 dec 1.2460 cos 0.9341 gn 0.48 1576s
+step 7500/31250 P1 lat 0.2652 dec 1.1609 cos 0.9337 gn 0.37 1597s
+step 7600/31250 P1 lat 0.3203 dec 1.4723 cos 0.9199 gn 0.39 1618s
+step 7700/31250 P1 lat 0.2644 dec 1.2938 cos 0.9339 gn 0.39 1640s
+step 7800/31250 P1 lat 0.2583 dec 1.3305 cos 0.9354 gn 0.45 1661s
+== 24%: one-step step-acc pred 0.690 oracle 0.858 answer pred 0.228 | all-lengths answer pred 0.098 | cos pred 0.930 copy 0.659 | target spread ratio 1.000
+step 7900/31250 P1 lat 0.2755 dec 0.9817 cos 0.9311 gn 0.39 1692s
+step 8000/31250 P1 lat 0.2703 dec 1.0805 cos 0.9324 gn 0.58 1713s
+step 8100/31250 P1 lat 0.2816 dec 1.2269 cos 0.9296 gn 0.34 1734s
+step 8200/31250 P1 lat 0.2579 dec 1.0205 cos 0.9355 gn 0.38 1756s
+step 8300/31250 P1 lat 0.2815 dec 1.3498 cos 0.9296 gn 0.44 1777s
+step 8400/31250 P1 lat 0.2567 dec 0.9668 cos 0.9358 gn 0.38 1798s
+step 8500/31250 P1 lat 0.2919 dec 0.9670 cos 0.9270 gn 0.34 1819s
+step 8600/31250 P1 lat 0.3023 dec 1.4865 cos 0.9244 gn 0.46 1841s
+step 8700/31250 P1 lat 0.2580 dec 1.2758 cos 0.9355 gn 0.50 1862s
+step 8800/31250 P1 lat 0.2677 dec 1.1224 cos 0.9331 gn 0.47 1884s
+step 8900/31250 P1 lat 0.2690 dec 1.0500 cos 0.9328 gn 0.41 1905s
+step 9000/31250 P1 lat 0.2533 dec 0.9963 cos 0.9367 gn 0.35 1925s
+step 9100/31250 P1 lat 0.2839 dec 1.3713 cos 0.9290 gn 0.38 1945s
+step 9200/31250 P1 lat 0.2877 dec 1.1066 cos 0.9281 gn 0.40 1965s
+step 9300/31250 P1 lat 0.2737 dec 0.9542 cos 0.9316 gn 0.37 1985s
+step 9400/31250 P1 lat 0.2898 dec 1.0301 cos 0.9276 gn 0.38 2006s
+step 9500/31250 P1 lat 0.2765 dec 1.0435 cos 0.9309 gn 0.43 2028s
+step 9600/31250 P1 lat 0.2661 dec 1.0313 cos 0.9335 gn 0.42 2049s
+step 9700/31250 P1 lat 0.2722 dec 1.5742 cos 0.9320 gn 0.48 2071s
+step 9800/31250 P1 lat 0.2337 dec 0.7952 cos 0.9416 gn 0.32 2091s
+step 9900/31250 P1 lat 0.2446 dec 0.9760 cos 0.9388 gn 0.40 2113s
+step 10000/31250 P1 lat 0.2474 dec 0.8515 cos 0.9382 gn 0.33 2134s
+step 10100/31250 P1 lat 0.2814 dec 1.1581 cos 0.9296 gn 0.39 2156s
+step 10200/31250 P1 lat 0.2470 dec 1.1191 cos 0.9382 gn 0.37 2177s
+step 10300/31250 P1 lat 0.2207 dec 0.8743 cos 0.9448 gn 0.33 2198s
+step 10400/31250 P1 lat 0.2224 dec 1.0539 cos 0.9444 gn 0.34 2219s
+step 10500/31250 P1 lat 0.2546 dec 1.0353 cos 0.9364 gn 0.37 2241s
+step 10600/31250 P1 lat 0.2554 dec 0.8051 cos 0.9362 gn 0.33 2262s
+step 10700/31250 P1 lat 0.2905 dec 0.7926 cos 0.9274 gn 0.31 2283s
+step 10800/31250 P1 lat 0.2728 dec 1.1825 cos 0.9318 gn 0.36 2304s
+step 10900/31250 P1 lat 0.2607 dec 0.9848 cos 0.9348 gn 0.34 2325s
+step 11000/31250 P1 lat 0.2162 dec 1.0729 cos 0.9459 gn 0.37 2345s
+step 11100/31250 P1 lat 0.2884 dec 0.8611 cos 0.9279 gn 0.33 2366s
+step 11200/31250 P1 lat 0.2711 dec 0.8579 cos 0.9322 gn 0.37 2387s
+step 11300/31250 P1 lat 0.2613 dec 1.0023 cos 0.9347 gn 0.34 2408s
+step 11400/31250 P1 lat 0.2960 dec 1.0472 cos 0.9260 gn 0.42 2428s
+step 11500/31250 P1 lat 0.2515 dec 0.8113 cos 0.9371 gn 0.31 2449s
+step 11600/31250 P1 lat 0.2932 dec 1.6686 cos 0.9267 gn 0.43 2469s
+step 11700/31250 P1 lat 0.2458 dec 0.8750 cos 0.9386 gn 0.43 2491s
+step 11800/31250 P1 lat 0.2591 dec 1.1142 cos 0.9352 gn 0.37 2512s
+step 11900/31250 P1 lat 0.2365 dec 0.7623 cos 0.9409 gn 0.35 2533s
+step 12000/31250 P1 lat 0.2022 dec 0.9706 cos 0.9494 gn 0.35 2555s
+step 12100/31250 P1 lat 0.2343 dec 0.9186 cos 0.9414 gn 0.34 2576s
+step 12200/31250 P1 lat 0.2529 dec 0.9108 cos 0.9368 gn 0.34 2597s
+step 12300/31250 P1 lat 0.2439 dec 1.0233 cos 0.9390 gn 0.34 2618s
+step 12400/31250 P1 lat 0.2306 dec 0.6288 cos 0.9423 gn 0.33 2640s
+step 12500/31250 P1 lat 0.2502 dec 1.0588 cos 0.9374 gn 0.37 2661s
+step 12600/31250 P1 lat 0.2468 dec 1.0245 cos 0.9383 gn 0.35 2682s
+step 12700/31250 P1 lat 0.2935 dec 0.8781 cos 0.9266 gn 0.35 2703s
+step 12800/31250 P1 lat 0.2474 dec 0.9341 cos 0.9381 gn 0.36 2724s
+step 12900/31250 P1 lat 0.2824 dec 0.8685 cos 0.9294 gn 0.35 2745s
+step 13000/31250 P1 lat 0.2416 dec 0.9622 cos 0.9396 gn 0.41 2766s
+step 13100/31250 P1 lat 0.2643 dec 1.1390 cos 0.9339 gn 0.37 2787s
+step 13200/31250 P1 lat 0.2871 dec 0.8354 cos 0.9282 gn 0.38 2809s
+step 13300/31250 P1 lat 0.2491 dec 0.8530 cos 0.9377 gn 0.41 2830s
+step 13400/31250 P1 lat 0.2454 dec 0.8539 cos 0.9387 gn 0.35 2851s
+step 13500/31250 P1 lat 0.2374 dec 0.7685 cos 0.9406 gn 0.29 2873s
+step 13600/31250 P1 lat 0.2393 dec 0.9473 cos 0.9402 gn 0.32 2894s
+step 13700/31250 P1 lat 0.2434 dec 0.7708 cos 0.9392 gn 0.35 2915s
+step 13800/31250 P1 lat 0.2196 dec 0.7478 cos 0.9451 gn 0.32 2937s
+step 13900/31250 P1 lat 0.2293 dec 0.8558 cos 0.9427 gn 0.34 2958s
+step 14000/31250 P1 lat 0.2542 dec 0.9136 cos 0.9365 gn 0.37 2979s
+step 14100/31250 P1 lat 0.2603 dec 1.1093 cos 0.9349 gn 0.37 3000s
+step 14200/31250 P1 lat 0.2531 dec 0.8444 cos 0.9367 gn 0.32 3022s
+step 14300/31250 P1 lat 0.2420 dec 0.9884 cos 0.9395 gn 0.36 3043s
+step 14400/31250 P1 lat 0.3010 dec 0.9036 cos 0.9247 gn 0.37 3064s
+step 14500/31250 P1 lat 0.2867 dec 0.9955 cos 0.9283 gn 0.38 3085s
+step 14600/31250 P1 lat 0.2404 dec 0.9028 cos 0.9399 gn 0.32 3107s
+step 14700/31250 P1 lat 0.2414 dec 0.7916 cos 0.9396 gn 0.32 3128s
+step 14800/31250 P1 lat 0.2550 dec 1.0050 cos 0.9362 gn 0.34 3149s
+step 14900/31250 P1 lat 0.2718 dec 0.8320 cos 0.9321 gn 0.32 3171s
+step 15000/31250 P1 lat 0.2321 dec 1.1421 cos 0.9420 gn 0.38 3192s
+step 15100/31250 P1 lat 0.2297 dec 0.8728 cos 0.9426 gn 0.37 3213s
+step 15200/31250 P1 lat 0.2295 dec 1.1514 cos 0.9426 gn 0.39 3235s
+step 15300/31250 P1 lat 0.2621 dec 0.7726 cos 0.9345 gn 0.33 3256s
+step 15400/31250 P1 lat 0.2295 dec 0.6889 cos 0.9426 gn 0.31 3278s
+step 15500/31250 P1 lat 0.2251 dec 0.7468 cos 0.9437 gn 0.30 3299s
+step 15600/31250 P1 lat 0.2717 dec 0.9083 cos 0.9321 gn 0.34 3321s
+== 50%: one-step step-acc pred 0.742 oracle 0.876 answer pred 0.360 | all-lengths answer pred 0.164 | cos pred 0.939 copy 0.659 | target spread ratio 1.000
+--- step 15625: encoder unfrozen (LoRA), target encoder now follows by EMA ---
+step 15700/31250 P2 lat 0.2516 dec 0.6793 cos 0.9371 gn 0.37 3356s
+step 15800/31250 P2 lat 0.2432 dec 0.6759 cos 0.9392 gn 0.36 3384s
+step 15900/31250 P2 lat 0.2235 dec 0.9046 cos 0.9441 gn 0.33 3413s
+step 16000/31250 P2 lat 0.2543 dec 0.9175 cos 0.9364 gn 0.37 3441s
+step 16100/31250 P2 lat 0.2463 dec 0.7079 cos 0.9384 gn 0.63 3469s
+step 16200/31250 P2 lat 0.2794 dec 0.8070 cos 0.9302 gn 0.34 3498s
+step 16300/31250 P2 lat 0.3210 dec 0.8514 cos 0.9197 gn 0.32 3526s
+step 16400/31250 P2 lat 0.2876 dec 0.6743 cos 0.9281 gn 0.32 3554s
+step 16500/31250 P2 lat 0.3626 dec 0.8755 cos 0.9093 gn 0.32 3582s
+step 16600/31250 P2 lat 0.3994 dec 1.0179 cos 0.9002 gn 0.51 3611s
+step 16700/31250 P2 lat 0.3708 dec 0.6904 cos 0.9073 gn 0.35 3640s
+step 16800/31250 P2 lat 0.3302 dec 0.8586 cos 0.9174 gn 0.45 3668s
+step 16900/31250 P2 lat 0.3397 dec 0.7238 cos 0.9151 gn 0.33 3697s
+step 17000/31250 P2 lat 0.3501 dec 0.7313 cos 0.9125 gn 0.51 3725s
+step 17100/31250 P2 lat 0.3588 dec 0.6108 cos 0.9103 gn 0.34 3754s
+step 17200/31250 P2 lat 0.3347 dec 0.8104 cos 0.9163 gn 0.36 3782s
+step 17300/31250 P2 lat 0.3765 dec 0.6652 cos 0.9059 gn 0.32 3811s
+step 17400/31250 P2 lat 0.3704 dec 0.6753 cos 0.9074 gn 0.33 3839s
+step 17500/31250 P2 lat 0.3869 dec 1.0285 cos 0.9033 gn 0.59 3867s
+step 17600/31250 P2 lat 0.4369 dec 0.9377 cos 0.8908 gn 0.46 3897s
+step 17700/31250 P2 lat 0.3684 dec 0.7853 cos 0.9079 gn 0.36 3925s
+step 17800/31250 P2 lat 0.3794 dec 0.6095 cos 0.9051 gn 0.34 3954s
+step 17900/31250 P2 lat 0.3753 dec 0.7795 cos 0.9062 gn 0.36 3982s
+step 18000/31250 P2 lat 0.3942 dec 0.7408 cos 0.9015 gn 0.39 4011s
+step 18100/31250 P2 lat 0.4008 dec 0.8872 cos 0.8998 gn 0.47 4040s
+step 18200/31250 P2 lat 0.4089 dec 0.8985 cos 0.8978 gn 0.47 4069s
+step 18300/31250 P2 lat 0.3844 dec 1.3475 cos 0.9039 gn 0.46 4097s
+step 18400/31250 P2 lat 0.3516 dec 0.7465 cos 0.9121 gn 0.37 4126s
+step 18500/31250 P2 lat 0.3695 dec 0.6554 cos 0.9076 gn 0.40 4156s
+step 18600/31250 P2 lat 0.4077 dec 0.9951 cos 0.8981 gn 0.48 4185s
+step 18700/31250 P2 lat 0.3350 dec 0.9536 cos 0.9163 gn 0.45 4213s
+step 18800/31250 P2 lat 0.3420 dec 0.8289 cos 0.9145 gn 0.46 4242s
+step 18900/31250 P2 lat 0.3494 dec 0.9848 cos 0.9127 gn 0.43 4271s
+step 19000/31250 P2 lat 0.3553 dec 0.9014 cos 0.9112 gn 0.47 4299s
+step 19100/31250 P2 lat 0.3518 dec 0.9224 cos 0.9120 gn 0.52 4328s
+step 19200/31250 P2 lat 0.3433 dec 1.0776 cos 0.9142 gn 0.48 4356s
+step 19300/31250 P2 lat 0.3370 dec 1.1078 cos 0.9157 gn 0.53 4384s
+step 19400/31250 P2 lat 0.3342 dec 0.7674 cos 0.9164 gn 0.54 4413s
+step 19500/31250 P2 lat 0.3191 dec 0.8438 cos 0.9202 gn 0.49 4441s
+step 19600/31250 P2 lat 0.3014 dec 0.7153 cos 0.9247 gn 0.61 4469s
+step 19700/31250 P2 lat 0.3349 dec 0.7584 cos 0.9163 gn 0.49 4498s
+step 19800/31250 P2 lat 0.3111 dec 0.7435 cos 0.9222 gn 0.58 4526s
+step 19900/31250 P2 lat 0.3050 dec 0.7688 cos 0.9237 gn 0.49 4554s
+step 20000/31250 P2 lat 0.3251 dec 0.9974 cos 0.9187 gn 0.58 4582s
+step 20100/31250 P2 lat 0.3378 dec 0.9207 cos 0.9155 gn 0.54 4611s
+step 20200/31250 P2 lat 0.3107 dec 1.1365 cos 0.9223 gn 0.59 4640s
+step 20300/31250 P2 lat 0.3131 dec 0.7590 cos 0.9217 gn 0.68 4668s
+step 20400/31250 P2 lat 0.2929 dec 1.1414 cos 0.9268 gn 0.66 4697s
+step 20500/31250 P2 lat 0.3242 dec 0.9361 cos 0.9190 gn 0.64 4726s
+step 20600/31250 P2 lat 0.3109 dec 0.9395 cos 0.9223 gn 0.53 4754s
+step 20700/31250 P2 lat 0.2856 dec 0.9281 cos 0.9286 gn 0.61 4782s
+step 20800/31250 P2 lat 0.3436 dec 1.2373 cos 0.9141 gn 0.58 4811s
+step 20900/31250 P2 lat 0.3023 dec 1.0618 cos 0.9244 gn 0.58 4839s
+step 21000/31250 P2 lat 0.2978 dec 1.1628 cos 0.9255 gn 0.56 4867s
+step 21100/31250 P2 lat 0.2750 dec 0.8232 cos 0.9312 gn 0.51 4896s
+step 21200/31250 P2 lat 0.2738 dec 0.9223 cos 0.9316 gn 0.62 4924s
+step 21300/31250 P2 lat 0.3017 dec 1.0155 cos 0.9246 gn 0.67 4953s
+step 21400/31250 P2 lat 0.2799 dec 0.8221 cos 0.9300 gn 0.59 4981s
+step 21500/31250 P2 lat 0.2676 dec 1.1782 cos 0.9331 gn 0.63 5010s
+step 21600/31250 P2 lat 0.2779 dec 0.9037 cos 0.9305 gn 0.72 5038s
+step 21700/31250 P2 lat 0.2675 dec 0.9942 cos 0.9331 gn 0.67 5067s
+step 21800/31250 P2 lat 0.2447 dec 0.9151 cos 0.9388 gn 0.68 5095s
+step 21900/31250 P2 lat 0.2377 dec 0.8618 cos 0.9406 gn 0.57 5124s
+step 22000/31250 P2 lat 0.2347 dec 0.9077 cos 0.9413 gn 0.61 5153s
+step 22100/31250 P2 lat 0.2344 dec 1.1974 cos 0.9414 gn 0.89 5182s
+step 22200/31250 P2 lat 0.2244 dec 1.0270 cos 0.9439 gn 0.66 5210s
+step 22300/31250 P2 lat 0.2356 dec 1.0389 cos 0.9411 gn 0.66 5238s
+step 22400/31250 P2 lat 0.2065 dec 1.1103 cos 0.9484 gn 0.90 5267s
+step 22500/31250 P2 lat 0.2114 dec 1.3038 cos 0.9471 gn 0.68 5295s
+step 22600/31250 P2 lat 0.1928 dec 0.9289 cos 0.9518 gn 0.71 5324s
+step 22700/31250 P2 lat 0.1914 dec 1.0720 cos 0.9522 gn 0.81 5352s
+step 22800/31250 P2 lat 0.1829 dec 1.3382 cos 0.9543 gn 0.70 5381s
+step 22900/31250 P2 lat 0.1673 dec 0.9382 cos 0.9582 gn 0.83 5409s
+step 23000/31250 P2 lat 0.1645 dec 0.6919 cos 0.9589 gn 0.84 5437s
+step 23100/31250 P2 lat 0.1449 dec 0.9606 cos 0.9638 gn 0.83 5466s
+step 23200/31250 P2 lat 0.1497 dec 0.7998 cos 0.9626 gn 0.59 5494s
+step 23300/31250 P2 lat 0.1549 dec 0.8575 cos 0.9613 gn 0.76 5523s
+step 23400/31250 P2 lat 0.1391 dec 0.9082 cos 0.9652 gn 0.57 5552s
+== 74%: one-step step-acc pred 0.794 oracle 0.808 answer pred 0.440 | all-lengths answer pred 0.218 | cos pred 0.968 copy 0.956 | target spread ratio 1.214
+step 23500/31250 P2 lat 0.1226 dec 0.9363 cos 0.9693 gn 0.59 5590s
+step 23600/31250 P2 lat 0.1347 dec 0.9091 cos 0.9663 gn 0.62 5619s
+step 23700/31250 P2 lat 0.1292 dec 0.8714 cos 0.9677 gn 0.82 5648s
+step 23800/31250 P2 lat 0.1367 dec 0.7806 cos 0.9658 gn 0.73 5676s
+step 23900/31250 P2 lat 0.1241 dec 0.8911 cos 0.9690 gn 0.69 5705s
+step 24000/31250 P2 lat 0.1179 dec 0.8685 cos 0.9705 gn 0.64 5734s
+step 24100/31250 P2 lat 0.1267 dec 0.7969 cos 0.9683 gn 0.69 5763s
+step 24200/31250 P2 lat 0.1188 dec 1.0624 cos 0.9703 gn 0.67 5791s
+step 24300/31250 P2 lat 0.1223 dec 0.8491 cos 0.9694 gn 0.74 5820s
+step 24400/31250 P2 lat 0.1208 dec 1.1127 cos 0.9698 gn 0.62 5849s
+step 24500/31250 P2 lat 0.1056 dec 0.7018 cos 0.9736 gn 0.67 5878s
+step 24600/31250 P2 lat 0.1341 dec 0.7373 cos 0.9665 gn 0.70 5907s
+step 24700/31250 P2 lat 0.1232 dec 1.0505 cos 0.9692 gn 0.70 5936s
+step 24800/31250 P2 lat 0.1260 dec 0.8254 cos 0.9685 gn 0.66 5964s
+step 24900/31250 P2 lat 0.1194 dec 0.6667 cos 0.9702 gn 0.48 5993s
+step 25000/31250 P2 lat 0.1129 dec 0.9392 cos 0.9718 gn 0.73 6022s
+step 25100/31250 P2 lat 0.1296 dec 0.6824 cos 0.9676 gn 1.32 6052s
+step 25200/31250 P2 lat 0.1242 dec 0.7253 cos 0.9690 gn 0.63 6080s
+step 25300/31250 P2 lat 0.1237 dec 0.6310 cos 0.9691 gn 0.82 6108s
+step 25400/31250 P2 lat 0.1258 dec 1.0092 cos 0.9685 gn 0.77 6136s
+step 25500/31250 P2 lat 0.1439 dec 0.8219 cos 0.9640 gn 1.05 6165s
+step 25600/31250 P2 lat 0.1252 dec 0.6840 cos 0.9687 gn 1.03 6193s
+step 25700/31250 P2 lat 0.1431 dec 0.9791 cos 0.9642 gn 0.94 6222s
+step 25800/31250 P2 lat 0.1417 dec 0.6134 cos 0.9646 gn 1.77 6251s
+step 25900/31250 P2 lat 0.1437 dec 0.5983 cos 0.9641 gn 1.12 6280s
+step 26000/31250 P2 lat 0.1397 dec 0.5980 cos 0.9651 gn 0.84 6308s
+step 26100/31250 P2 lat 0.1604 dec 0.9038 cos 0.9599 gn 1.17 6337s
+step 26200/31250 P2 lat 0.1520 dec 0.8275 cos 0.9620 gn 0.97 6366s
+step 26300/31250 P2 lat 0.1405 dec 0.5515 cos 0.9649 gn 1.15 6394s
+step 26400/31250 P2 lat 0.1519 dec 0.6590 cos 0.9620 gn 1.17 6423s
+step 26500/31250 P2 lat 0.1463 dec 0.8371 cos 0.9634 gn 0.98 6452s
+step 26600/31250 P2 lat 0.1445 dec 0.5918 cos 0.9639 gn 0.68 6481s
+step 26700/31250 P2 lat 0.1621 dec 0.8273 cos 0.9595 gn 1.05 6509s
+step 26800/31250 P2 lat 0.1539 dec 0.8248 cos 0.9615 gn 0.74 6537s
+step 26900/31250 P2 lat 0.1699 dec 0.7068 cos 0.9575 gn 0.99 6566s
+step 27000/31250 P2 lat 0.1695 dec 1.1059 cos 0.9576 gn 0.71 6594s
+step 27100/31250 P2 lat 0.1842 dec 1.0073 cos 0.9540 gn 2.22 6623s
+step 27200/31250 P2 lat 0.1821 dec 0.7635 cos 0.9545 gn 1.81 6652s
+step 27300/31250 P2 lat 0.1871 dec 0.8340 cos 0.9532 gn 1.56 6680s
+step 27400/31250 P2 lat 0.1840 dec 0.9379 cos 0.9540 gn 1.28 6708s
+step 27500/31250 P2 lat 0.1600 dec 0.8412 cos 0.9600 gn 1.37 6737s
+step 27600/31250 P2 lat 0.1593 dec 0.7157 cos 0.9602 gn 0.65 6765s
+step 27700/31250 P2 lat 0.1728 dec 0.8702 cos 0.9568 gn 1.17 6794s
+step 27800/31250 P2 lat 0.1798 dec 0.8223 cos 0.9551 gn 1.91 6823s
+step 27900/31250 P2 lat 0.1834 dec 0.9059 cos 0.9541 gn 0.79 6851s
+step 28000/31250 P2 lat 0.1520 dec 0.7360 cos 0.9620 gn 0.94 6879s
+step 28100/31250 P2 lat 0.1754 dec 0.7397 cos 0.9561 gn 0.79 6908s
+step 28200/31250 P2 lat 0.1649 dec 0.7414 cos 0.9588 gn 0.82 6937s
+step 28300/31250 P2 lat 0.1954 dec 0.8786 cos 0.9512 gn 0.77 6965s
+step 28400/31250 P2 lat 0.1649 dec 0.7879 cos 0.9588 gn 0.95 6994s
+step 28500/31250 P2 lat 0.1941 dec 1.0082 cos 0.9515 gn 1.05 7023s
+step 28600/31250 P2 lat 0.1694 dec 0.7787 cos 0.9576 gn 0.79 7051s
+step 28700/31250 P2 lat 0.1704 dec 0.6252 cos 0.9574 gn 0.73 7080s
+step 28800/31250 P2 lat 0.1840 dec 0.6986 cos 0.9540 gn 2.18 7109s
+step 28900/31250 P2 lat 0.1915 dec 0.6318 cos 0.9521 gn 0.84 7137s
+step 29000/31250 P2 lat 0.1723 dec 0.5711 cos 0.9569 gn 0.81 7165s
+step 29100/31250 P2 lat 0.1880 dec 0.6658 cos 0.9530 gn 1.06 7194s
+step 29200/31250 P2 lat 0.1729 dec 0.7245 cos 0.9568 gn 1.39 7222s
+step 29300/31250 P2 lat 0.1690 dec 0.7583 cos 0.9578 gn 1.26 7251s
+step 29400/31250 P2 lat 0.1819 dec 0.7473 cos 0.9545 gn 1.43 7280s
+step 29500/31250 P2 lat 0.1954 dec 0.8631 cos 0.9512 gn 0.95 7308s
+step 29600/31250 P2 lat 0.1679 dec 0.7436 cos 0.9580 gn 0.91 7337s
+step 29700/31250 P2 lat 0.1719 dec 0.7786 cos 0.9570 gn 1.23 7365s
+step 29800/31250 P2 lat 0.1887 dec 0.9127 cos 0.9528 gn 1.35 7394s
+step 29900/31250 P2 lat 0.1590 dec 0.5378 cos 0.9602 gn 0.75 7423s
+step 30000/31250 P2 lat 0.1723 dec 0.6654 cos 0.9569 gn 1.80 7452s
+step 30100/31250 P2 lat 0.1724 dec 0.6705 cos 0.9569 gn 1.42 7480s
+step 30200/31250 P2 lat 0.1634 dec 0.5906 cos 0.9592 gn 1.11 7509s
+step 30300/31250 P2 lat 0.1888 dec 0.6357 cos 0.9528 gn 2.16 7538s
+step 30400/31250 P2 lat 0.1751 dec 0.7607 cos 0.9562 gn 1.02 7566s
+step 30500/31250 P2 lat 0.1733 dec 0.7504 cos 0.9567 gn 1.93 7595s
+step 30600/31250 P2 lat 0.1786 dec 0.7920 cos 0.9553 gn 1.23 7624s
+step 30700/31250 P2 lat 0.1784 dec 0.6963 cos 0.9554 gn 0.96 7652s
+step 30800/31250 P2 lat 0.1857 dec 0.7869 cos 0.9536 gn 0.77 7681s
+step 30900/31250 P2 lat 0.1834 dec 0.7264 cos 0.9541 gn 0.89 7709s
+step 31000/31250 P2 lat 0.1624 dec 0.6378 cos 0.9594 gn 0.67 7739s
+step 31100/31250 P2 lat 0.1734 dec 0.6227 cos 0.9567 gn 0.77 7768s
+step 31200/31250 P2 lat 0.1592 dec 0.5065 cos 0.9602 gn 0.63 7796s
+== 100%: one-step step-acc pred 0.808 oracle 0.844 answer pred 0.598 | all-lengths answer pred 0.224 | cos pred 0.959 copy 0.902 | target spread ratio 1.087
+
+FINAL EVALUATION, size s
+held-out GSM8k-Aug, one-step (n = 1): 2000 problems
+  oracle step numeric match 0.856 | answer acc 0.881 | cos to target 1.000
+  pred   step numeric match 0.786 | answer acc 0.579 | cos to target 0.965
+  copy   step numeric match 0.737 | answer acc 0.190 | cos to target 0.913
+  skill score 0.591 | spread ratio: target 0.926, predicted 0.856 (collapse flag below 0.07)
+  registered P3 gate, one-step decoded accuracy at least 0.80: FAIL (0.786)
+held-out GSM8k-Aug, all chain lengths: 2000 problems
+  oracle step numeric match 0.651 | answer acc 0.636 | cos to target 1.000
+  pred   step numeric match 0.552 | answer acc 0.233 | cos to target 0.959
+  copy   step numeric match 0.431 | answer acc 0.060 | cos to target 0.902
+  skill score 0.580 | spread ratio: target 1.088, predicted 1.010 (collapse flag below 0.07)
+     n=1   n= 332 answer acc: oracle 0.849 pred 0.461 copy 0.127
+     n=2   n= 707 answer acc: oracle 0.745 pred 0.310 copy 0.069
+     n=3   n= 549 answer acc: oracle 0.572 pred 0.135 copy 0.038
+     n>=4  n= 412 answer acc: oracle 0.364 pred 0.049 copy 0.022
+
+GSM8K TEST SET, answer accuracy (exact match of the final answer), 1319 questions
+  system (predicted state) 0.1061  =  140 / 1319
+  copy (question state)    0.0303  =  40 / 1319
+  on the 1208 questions with a usable reference chain: oracle (true state) 0.4892 | system 0.1051
+saved p3full_s.pt

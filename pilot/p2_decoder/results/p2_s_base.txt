@@ -1,0 +1,71 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 3915.40it/s]
+data ready in 41s: train 50000, val 2000, T=3
+decoder trainable parameters: 25.3M
+step 100/4686 loss 3.5851 gn 1.81 lr 2.02e-05 11s
+step 200/4686 loss 2.5555 gn 1.00 lr 4.02e-05 20s
+step 300/4686 loss 2.0747 gn 1.64 lr 6.02e-05 30s
+step 400/4686 loss 2.0234 gn 1.77 lr 8.02e-05 40s
+step 500/4686 loss 2.1033 gn 1.72 lr 1.00e-04 49s
+step 600/4686 loss 2.0177 gn 1.88 lr 1.20e-04 59s
+step 700/4686 loss 1.6914 gn 1.38 lr 1.40e-04 68s
+step 800/4686 loss 1.9332 gn 2.06 lr 1.60e-04 77s
+step 900/4686 loss 1.5822 gn 1.76 lr 1.80e-04 87s
+step 1000/4686 loss 1.3967 gn 1.82 lr 2.00e-04 96s
+step 1100/4686 loss 1.3352 gn 1.56 lr 2.00e-04 106s
+step 1200/4686 loss 1.3800 gn 1.83 lr 1.99e-04 116s
+step 1300/4686 loss 1.2137 gn 2.05 lr 1.97e-04 125s
+step 1400/4686 loss 1.1362 gn 1.99 lr 1.95e-04 135s
+step 1500/4686 loss 1.2419 gn 2.00 lr 1.92e-04 144s
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+== epoch 1: val(500) oracle step acc [0.394, 0.210, 0.186] | answer acc 0.206
+step 1600/4686 loss 1.0554 gn 2.12 lr 1.88e-04 157s
+step 1700/4686 loss 0.9434 gn 1.95 lr 1.84e-04 166s
+step 1800/4686 loss 0.9512 gn 2.18 lr 1.80e-04 176s
+step 1900/4686 loss 1.1584 gn 1.80 lr 1.75e-04 185s
+step 2000/4686 loss 1.0926 gn 2.05 lr 1.69e-04 195s
+step 2100/4686 loss 1.1433 gn 2.68 lr 1.63e-04 205s
+step 2200/4686 loss 1.0517 gn 1.65 lr 1.57e-04 214s
+step 2300/4686 loss 0.9849 gn 1.85 lr 1.50e-04 224s
+step 2400/4686 loss 1.0369 gn 2.60 lr 1.43e-04 233s
+step 2500/4686 loss 0.8624 gn 1.95 lr 1.36e-04 243s
+step 2600/4686 loss 0.9202 gn 1.83 lr 1.29e-04 252s
+step 2700/4686 loss 0.7193 gn 1.92 lr 1.21e-04 261s
+step 2800/4686 loss 0.7909 gn 1.70 lr 1.13e-04 270s
+step 2900/4686 loss 0.7195 gn 2.06 lr 1.06e-04 280s
+step 3000/4686 loss 0.6866 gn 1.91 lr 9.80e-05 290s
+step 3100/4686 loss 0.7643 gn 1.88 lr 9.04e-05 299s
+== epoch 2: val(500) oracle step acc [0.642, 0.452, 0.498] | answer acc 0.552
+step 3200/4686 loss 0.6998 gn 1.87 lr 8.30e-05 312s
+step 3300/4686 loss 0.6999 gn 1.81 lr 7.58e-05 322s
+step 3400/4686 loss 0.7199 gn 1.98 lr 6.89e-05 332s
+step 3500/4686 loss 0.7067 gn 1.79 lr 6.22e-05 341s
+step 3600/4686 loss 1.0188 gn 2.01 lr 5.59e-05 351s
+step 3700/4686 loss 0.7760 gn 1.91 lr 5.00e-05 361s
+step 3800/4686 loss 0.5327 gn 1.78 lr 4.45e-05 370s
+step 3900/4686 loss 0.4695 gn 2.21 lr 3.95e-05 380s
+step 4000/4686 loss 0.6380 gn 1.81 lr 3.50e-05 390s
+step 4100/4686 loss 0.5877 gn 1.98 lr 3.10e-05 399s
+step 4200/4686 loss 0.8423 gn 1.75 lr 2.76e-05 408s
+step 4300/4686 loss 0.8788 gn 2.13 lr 2.48e-05 417s
+step 4400/4686 loss 0.7886 gn 2.02 lr 2.27e-05 426s
+step 4500/4686 loss 0.4934 gn 1.86 lr 2.11e-05 435s
+step 4600/4686 loss 0.7071 gn 1.90 lr 2.02e-05 444s
+== epoch 3: val(500) oracle step acc [0.708, 0.528, 0.606] | answer acc 0.678
+
+FINAL EVALUATION on 2000 held-out problems
+   ref: <<11+4=15>> | got: <<9+6=15>>
+   ref: <<200*3-300=300>> | got: <<300*3=300>>
+   ref: <<15*5333.34=79999.97346666666>> | got: <<3000+1660=2665>>
+oracle    step numeric-match per t [0.695, 0.541, 0.611] | full-text match [0.398, 0.195, 0.141] | answer acc 0.687
+copy_z0   step numeric-match per t [0.070, 0.070, 0.015] | full-text match [0.021, 0.032, 0.003] | answer acc 0.009
+shuffled  step numeric-match per t [0.034, 0.024, 0.003] | full-text match [0.009, 0.009, 0.000] | answer acc 0.002
+P2 gate (oracle numeric match >= 90% at every t): FAIL
+
+STRATIFIED oracle step accuracy by the reference result of that step
+all                            n=1998 acc=0.696 | n=1999 acc=0.542 | n=2000 acc=0.611
+integer                        n=1860 acc=0.723 | n=1773 acc=0.577 | n=1751 acc=0.655
+non-integer                    n= 138 acc=0.333 | n= 226 acc=0.265 | n= 249 acc=0.301
+integer, |v| < 100             n=1274 acc=0.737 | n=1170 acc=0.593 | n=1017 acc=0.702
+integer, 100 <= |v| < 10000    n= 561 acc=0.709 | n= 572 acc=0.558 | n= 683 acc=0.613
+|v| >= 10000                   n=  25 acc=0.280 | n=  32 acc=0.312 | n=  52 acc=0.269
+clean subset (all steps integer, <10000): n = 1587 per-t [0.749, 0.595, 0.686]

@@ -1,0 +1,31 @@
+--- noanno
+Natalia sold 48/2 = 24 clips in May.
+Natalia sold 48+24 = 72 clips altogether in April and May.
+#### 72
+--- short
+Natalia sold 48/2 = 24 clips in May.
+Natalia sold 48+24 = 72 clips altogether in April and May.
+#### 72
+--- eq
+48/2 = 24
+48+24 = 72
+#### 72
+--- noanno
+If the dog eats two eyes and Oomyapeck eats 22 eyes, then there are a total of 2+22=24 eyes.
+With 2 eyes per fish, 24 eyes represent 24/2=12 fish.
+If they split that number of fish equally amongst the three of them, then each of them will be given 12/3=4 fish to eat.
+#### 4
+--- short
+If the dog eats two eyes and Oomyapeck eats 22 eyes, then there are a total of 2+22=24 eyes.
+With 2 eyes per fish, 24 eyes represent 24/2=12 fish.
+If they split that number of fish equally amongst the three of them, then each of them will be given 12/3=4 fish to eat.
+#### 4
+--- eq
+2+22=24
+24/2=12
+12/3=4
+#### 4
+noanno n 5973 mean tokens 78.8 share >128 9.8 %
+short n 5973 mean tokens 77.3 share >128 9.1 %
+eq n 5973 mean tokens 35.2 share >128 1.4 %
+fallbacks (no equation found): {'short': 20, 'eq': 555}

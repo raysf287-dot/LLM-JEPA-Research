@@ -1,0 +1,13 @@
+# large artefacts and secrets stay out of git
+*.pt
+*.npz
+*.tgz
+*.safetensors
+*.jsonl
+ft_*/
+__pycache__/
+.venv/
+.env
+*api key*
+*token*
+eval_*.log

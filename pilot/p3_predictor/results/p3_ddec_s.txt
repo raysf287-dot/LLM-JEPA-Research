@@ -1,0 +1,69 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 7291.92it/s]
+data ready in 49s: train 150000 (one-step 22333), val_all 2000, val_one 2000
+decoder trainable parameters: 25.3M
+predictor size s: 42.5M trainable (37.8M in the Transformer layers)
+step 100/4687 loss 0.6520 gn 3.10 lr 1.08e-05 9s
+step 200/4687 loss 0.7469 gn 3.06 lr 2.15e-05 18s
+step 300/4687 loss 0.5693 gn 2.25 lr 3.22e-05 27s
+step 400/4687 loss 0.5892 gn 2.55 lr 4.28e-05 35s
+step 500/4687 loss 0.5125 gn 2.45 lr 5.00e-05 43s
+step 600/4687 loss 0.5708 gn 2.27 lr 4.99e-05 51s
+step 700/4687 loss 0.5165 gn 2.37 lr 4.97e-05 59s
+step 800/4687 loss 0.7605 gn 3.01 lr 4.93e-05 68s
+step 900/4687 loss 0.5096 gn 2.05 lr 4.88e-05 76s
+step 1000/4687 loss 0.5897 gn 2.06 lr 4.83e-05 84s
+step 1100/4687 loss 0.5152 gn 2.20 lr 4.76e-05 93s
+step 1200/4687 loss 0.5845 gn 2.05 lr 4.67e-05 101s
+step 1300/4687 loss 0.7269 gn 2.43 lr 4.58e-05 109s
+step 1400/4687 loss 0.5493 gn 2.33 lr 4.48e-05 117s
+step 1500/4687 loss 0.5149 gn 2.09 lr 4.37e-05 126s
+step 1600/4687 loss 0.5939 gn 2.32 lr 4.25e-05 134s
+step 1700/4687 loss 0.5188 gn 2.36 lr 4.12e-05 142s
+step 1800/4687 loss 0.6655 gn 2.37 lr 3.98e-05 151s
+step 1900/4687 loss 0.4825 gn 1.98 lr 3.84e-05 159s
+step 2000/4687 loss 0.5976 gn 2.21 lr 3.69e-05 167s
+step 2100/4687 loss 0.4796 gn 1.94 lr 3.53e-05 175s
+step 2200/4687 loss 0.4733 gn 1.96 lr 3.37e-05 184s
+step 2300/4687 loss 0.6149 gn 2.64 lr 3.21e-05 192s
+step 2400/4687 loss 0.5323 gn 2.32 lr 3.05e-05 200s
+step 2500/4687 loss 0.4677 gn 2.17 lr 2.88e-05 208s
+step 2600/4687 loss 0.5906 gn 2.26 lr 2.71e-05 217s
+step 2700/4687 loss 0.5199 gn 1.91 lr 2.55e-05 225s
+step 2800/4687 loss 0.5039 gn 2.14 lr 2.38e-05 233s
+step 2900/4687 loss 0.4875 gn 2.00 lr 2.21e-05 241s
+step 3000/4687 loss 0.5494 gn 1.90 lr 2.05e-05 249s
+step 3100/4687 loss 0.5829 gn 2.16 lr 1.90e-05 257s
+step 3200/4687 loss 0.5010 gn 2.07 lr 1.74e-05 265s
+step 3300/4687 loss 0.5079 gn 1.94 lr 1.60e-05 274s
+step 3400/4687 loss 0.5889 gn 2.37 lr 1.46e-05 282s
+step 3500/4687 loss 0.5664 gn 2.28 lr 1.32e-05 290s
+step 3600/4687 loss 0.6754 gn 2.43 lr 1.20e-05 299s
+step 3700/4687 loss 0.4721 gn 2.30 lr 1.08e-05 307s
+step 3800/4687 loss 0.5010 gn 2.02 lr 9.73e-06 315s
+step 3900/4687 loss 0.4724 gn 1.96 lr 8.75e-06 323s
+step 4000/4687 loss 0.3177 gn 1.54 lr 7.88e-06 331s
+step 4100/4687 loss 0.5627 gn 2.02 lr 7.12e-06 340s
+step 4200/4687 loss 0.4256 gn 1.93 lr 6.46e-06 348s
+step 4300/4687 loss 0.4742 gn 2.06 lr 5.93e-06 356s
+step 4400/4687 loss 0.4878 gn 1.81 lr 5.51e-06 364s
+step 4500/4687 loss 0.5220 gn 2.16 lr 5.22e-06 372s
+step 4600/4687 loss 0.4601 gn 1.95 lr 5.05e-06 380s
+
+DEPLOYED DECODER fine-tuned on pred states of predictor s
+one-step (n = 1): 2000 held-out problems
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+   ref: <<5*10=50>> | got: <<5*10=50>>
+   ref: <<2000*10/100=200>> | got: <<10/100*2000=200>>
+   ref: <<10000/200=50>> | got: <<10000/200=50>>
+  pred          step numeric match 0.709 | answer acc 0.311
+  pred_shuf     step numeric match 0.221 | answer acc 0.025
+  oracle        step numeric match 0.865 | answer acc 0.964
+all chain lengths: 2000 held-out problems
+  pred          step numeric match 0.407 | answer acc 0.124
+     n=1   n= 332 step 0.623 answer 0.283
+     n=2   n= 707 step 0.571 answer 0.143
+     n=3   n= 549 step 0.291 answer 0.071
+     n>=4  n= 412 step 0.104 answer 0.036
+  pred_shuf     step numeric match 0.058 | answer acc 0.008
+  oracle        step numeric match 0.580 | answer acc 0.842
+saved p3_ddec_s_pred.pt

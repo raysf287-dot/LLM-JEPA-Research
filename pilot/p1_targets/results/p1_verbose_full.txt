@@ -1,0 +1,12 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 4209.93it/s]
+paired problems (unique questions, valid compact chain): 369183
+
+T=2: 2000 problems (n_equations>=2 and n_sentences>=2); sentence count == equation count: 88.1%
+(i)  mean cos(z0,z*_t)   compact: 0.6312 | verbose: 0.67
+(ii) displacement cosine compact: -0.1854 | verbose: -0.4055
+(v)  cross-format distance of z*_T (compact vs verbose): 0.2724 | between-problem (compact): 0.3175 | ratio: 0.858
+
+T=3: 2000 problems (n_equations>=3 and n_sentences>=3); sentence count == equation count: 88.5%
+(i)  mean cos(z0,z*_t)   compact: 0.6209 | verbose: 0.6489
+(ii) displacement cosine compact: -0.1956 | verbose: -0.2526
+(v)  cross-format distance of z*_T (compact vs verbose): 0.278 | between-problem (compact): 0.3114 | ratio: 0.893

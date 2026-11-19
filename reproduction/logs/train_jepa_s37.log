@@ -1,0 +1,51 @@
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+/workspace/llm-jepa/finetune.py:536: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `RepresentationTrainer.__init__`. Use `processing_class` instead.
+  super().__init__(*args, **kwargs)
+=== Fine-tuning Script ===
+Train file: gsm8k_train.jsonl
+No eval file provided - training without evaluation
+Model: meta-llama/Llama-3.2-1B-Instruct
+Output: ./fine-tuned
+Using LoRA: False
+LoRA rank: 16
+
+1. Loading model and tokenizer...
+Added 11 new special tokens
+
+2. Loading and preparing dataset...
+Loading training data from gsm8k_train.jsonl
+Loaded 7473 examples from gsm8k_train.jsonl
+No evaluation file provided
+Train samples: 7473
+No evaluation dataset
+
+3. Initializing representation trainer...
+
+4. Starting training...
+  0%|          | 0/468 [00:00<?, ?it/s]  0%|          | 1/468 [00:08<1:05:50,  8.46s/it]  0%|          | 2/468 [00:16<1:02:34,  8.06s/it]  1%|          | 3/468 [00:23<1:01:22,  7.92s/it]  1%|          | 4/468 [00:31<1:00:34,  7.83s/it]  1%|          | 5/468 [00:39<1:00:17,  7.81s/it]  1%|▏         | 6/468 [00:47<59:54,  7.78s/it]    1%|▏         | 7/468 [00:54<59:39,  7.77s/it]  2%|▏         | 8/468 [01:02<59:54,  7.81s/it]  2%|▏         | 9/468 [01:10<59:34,  7.79s/it]  2%|▏         | 10/468 [01:18<59:14,  7.76s/it]                                                  2%|▏         | 10/468 [01:18<59:14,  7.76s/it]  2%|▏         | 11/468 [01:25<59:00,  7.75s/it]  3%|▎         | 12/468 [01:33<58:55,  7.75s/it]  3%|▎         | 13/468 [01:41<58:29,  7.71s/it]  3%|▎         | 14/468 [01:49<58:25,  7.72s/it]  3%|▎         | 15/468 [01:57<58:52,  7.80s/it]  3%|▎         | 16/468 [02:04<58:33,  7.77s/it]  4%|▎         | 17/468 [02:12<58:29,  7.78s/it]  4%|▍         | 18/468 [02:20<58:14,  7.77s/it]  4%|▍         | 19/468 [02:27<57:48,  7.73s/it]  4%|▍         | 20/468 [02:35<57:41,  7.73s/it]                                                  4%|▍         | 20/468 [02:35<57:41,  7.73s/it]  4%|▍         | 21/468 [02:43<57:30,  7.72s/it]  5%|▍         | 22/468 [02:51<57:54,  7.79s/it]  5%|▍         | 23/468 [02:58<57:26,  7.74s/it]  5%|▌         | 24/468 [03:06<57:03,  7.71s/it]  5%|▌         | 25/468 [03:14<57:09,  7.74s/it]  6%|▌         | 26/468 [03:22<56:58,  7.73s/it]  6%|▌         | 27/468 [03:29<56:56,  7.75s/it]  6%|▌         | 28/468 [03:37<56:57,  7.77s/it]  6%|▌         | 29/468 [03:45<57:08,  7.81s/it]  6%|▋         | 30/468 [03:53<56:47,  7.78s/it]                                                  6%|▋         | 30/468 [03:53<56:47,  7.78s/it]  7%|▋         | 31/468 [04:01<56:26,  7.75s/it]  7%|▋         | 32/468 [04:08<56:29,  7.77s/it]  7%|▋         | 33/468 [04:16<56:13,  7.75s/it]  7%|▋         | 34/468 [04:24<55:59,  7.74s/it]  7%|▋         | 35/468 [04:31<55:45,  7.73s/it]  8%|▊         | 36/468 [04:39<56:05,  7.79s/it]  8%|▊         | 37/468 [04:47<56:02,  7.80s/it]  8%|▊         | 38/468 [04:55<55:42,  7.77s/it]  8%|▊         | 39/468 [05:03<55:28,  7.76s/it]  9%|▊         | 40/468 [05:10<55:21,  7.76s/it]                                                  9%|▊         | 40/468 [05:10<55:21,  7.76s/it]  9%|▉         | 41/468 [05:18<55:24,  7.79s/it]  9%|▉         | 42/468 [05:26<55:38,  7.84s/it]  9%|▉         | 43/468 [05:34<55:41,  7.86s/it]  9%|▉         | 44/468 [05:42<55:39,  7.88s/it] 10%|▉         | 45/468 [05:50<55:25,  7.86s/it] 10%|▉         | 46/468 [05:58<54:49,  7.79s/it] 10%|█         | 47/468 [06:05<54:38,  7.79s/it] 10%|█         | 48/468 [06:13<54:18,  7.76s/it] 10%|█         | 49/468 [06:21<54:19,  7.78s/it] 11%|█         | 50/468 [06:29<54:18,  7.80s/it]                                                 11%|█         | 50/468 [06:29<54:18,  7.80s/it] 11%|█         | 51/468 [06:36<54:04,  7.78s/it] 11%|█         | 52/468 [06:44<54:00,  7.79s/it] 11%|█▏        | 53/468 [06:52<53:43,  7.77s/it] 12%|█▏        | 54/468 [07:00<53:21,  7.73s/it] 12%|█▏        | 55/468 [07:07<53:13,  7.73s/it] 12%|█▏        | 56/468 [07:15<53:03,  7.73s/it] 12%|█▏        | 57/468 [07:23<52:54,  7.72s/it] 12%|█▏        | 58/468 [07:31<53:01,  7.76s/it] 13%|█▎        | 59/468 [07:38<52:49,  7.75s/it] 13%|█▎        | 60/468 [07:46<52:35,  7.73s/it]                                                 13%|█▎        | 60/468 [07:46<52:35,  7.73s/it] 13%|█▎        | 61/468 [07:54<52:18,  7.71s/it] 13%|█▎        | 62/468 [08:02<53:37,  7.92s/it] 13%|█▎        | 63/468 [08:10<53:28,  7.92s/it] 14%|█▎        | 64/468 [08:18<52:57,  7.87s/it] 14%|█▍        | 65/468 [08:26<52:49,  7.86s/it] 14%|█▍        | 66/468 [08:33<52:22,  7.82s/it] 14%|█▍        | 67/468 [08:41<52:05,  7.79s/it]{'loss': 46.2572, 'grad_norm': 100.5, 'learning_rate': 1.9615384615384617e-05, 'epoch': 0.09}
+{'loss': 31.6572, 'grad_norm': 98.0, 'learning_rate': 1.918803418803419e-05, 'epoch': 0.17}
+{'loss': 30.3624, 'grad_norm': 154.0, 'learning_rate': 1.876068376068376e-05, 'epoch': 0.26}
+{'loss': 29.0839, 'grad_norm': 167.0, 'learning_rate': 1.8333333333333333e-05, 'epoch': 0.34}
+{'loss': 27.2666, 'grad_norm': 79.5, 'learning_rate': 1.790598290598291e-05, 'epoch': 0.43}
+{'loss': 26.2711, 'grad_norm': 65.0, 'learning_rate': 1.747863247863248e-05, 'epoch': 0.51}
+Training failed with error: The expanded size of the tensor (351) must match the existing size (363) at non-singleton dimension 0.  Target sizes: [351].  Tensor sizes: [363]
+This might be due to FSDP/sharding issues. Try running with --lora flag for LoRA fine-tuning.
+Traceback (most recent call last):
+  File "/workspace/llm-jepa/finetune.py", line 1109, in <module>
+    main()
+  File "/workspace/llm-jepa/finetune.py", line 1067, in main
+    trainer.train()
+  File "/workspace/llm-jepa/.venv/lib/python3.10/site-packages/transformers/trainer.py", line 2238, in train
+    return inner_training_loop(
+  File "/workspace/llm-jepa/.venv/lib/python3.10/site-packages/transformers/trainer.py", line 2582, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+  File "/workspace/llm-jepa/.venv/lib/python3.10/site-packages/transformers/trainer.py", line 3796, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+  File "/workspace/llm-jepa/finetune.py", line 695, in compute_loss
+    forward_results = self.forward(model, inputs)
+  File "/workspace/llm-jepa/finetune.py", line 609, in forward
+    llm_inputs, skip_jepa = self.build_with_additive_mask(inputs)
+  File "/workspace/llm-jepa/finetune.py", line 588, in build_with_additive_mask
+    inputs["input_ids_user"][i, length_user:length_user + length_assistant] = inputs["input_ids_assistant"][i, :length_assistant]
+RuntimeError: The expanded size of the tensor (351) must match the existing size (363) at non-singleton dimension 0.  Target sizes: [351].  Tensor sizes: [363]
+ 14%|█▍        | 67/468 [08:47<52:34,  7.87s/it]

@@ -1,0 +1,30 @@
+=== Fine-tuning Script ===
+Train file: gsm8k_train.jsonl
+No eval file provided - training without evaluation
+Model: meta-llama/Llama-3.2-1B-Instruct
+Output: ./ft_L0_s23
+Using LoRA: False
+LoRA rank: 16
+
+1. Loading model and tokenizer...
+Added 11 new special tokens
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+
+2. Loading and preparing dataset...
+Loading training data from gsm8k_train.jsonl
+Loaded 7473 examples from gsm8k_train.jsonl
+No evaluation file provided
+Train samples: 7473
+No evaluation dataset
+
+3. Initializing representation trainer...
+/workspace/llm-jepa/finetune_step.py:601: FutureWarning: `tokenizer` is deprecated and will be removed in version 5.0.0 for `RepresentationTrainer.__init__`. Use `processing_class` instead.
+  super().__init__(*args, **kwargs)
+
+4. Starting training...
+  0%|          | 0/468 [00:00<?, ?it/s]  0%|          | 1/468 [00:09<1:11:57,  9.24s/it]  0%|          | 2/468 [00:18<1:09:46,  8.98s/it]  1%|          | 3/468 [00:26<1:09:05,  8.91s/it][jepa] call=64 lm=1.0931 jepa=0.7593 cos=0.2407 cos_rolled=0.2587 var=0.0000
+  1%|          | 4/468 [00:35<1:08:47,  8.90s/it]  1%|          | 5/468 [00:44<1:08:27,  8.87s/it]  1%|▏         | 6/468 [00:53<1:08:07,  8.85s/it]  1%|▏         | 7/468 [01:02<1:07:53,  8.84s/it][jepa] call=128 lm=1.0579 jepa=0.7360 cos=0.2640 cos_rolled=0.2298 var=0.0000
+  2%|▏         | 8/468 [01:11<1:07:41,  8.83s/it]  2%|▏         | 9/468 [01:19<1:07:31,  8.83s/it]  2%|▏         | 10/468 [01:28<1:07:21,  8.82s/it]                                                  {'loss': 20.2222, 'grad_norm': 43.5, 'learning_rate': 1.9615384615384617e-05, 'epoch': 0.09}
+  2%|▏         | 10/468 [01:28<1:07:21,  8.82s/it]  2%|▏         | 11/468 [01:37<1:07:12,  8.82s/it][jepa] call=192 lm=0.9668 jepa=0.6966 cos=0.3034 cos_rolled=0.2686 var=0.0000
+  3%|▎         | 12/468 [01:46<1:07:03,  8.82s/it]  3%|▎         | 13/468 [01:55<1:07:18,  8.88s/it]  3%|▎         | 14/468 [02:04<1:06:59,  8.85s/it]  3%|▎         | 15/468 [02:13<1:07:03,  8.88s/it][jepa] call=256 lm=1.0461 jepa=0.6976 cos=0.3024 cos_rolled=0.2835 var=0.0000
+  3%|▎         | 16/468 [02:21<1:06:46,  8.86s/it]  4%|▎         | 17/468 [02:30<1:06:35,  8.86s/it]

@@ -1,0 +1,81 @@
+=== Starting regular_s82 Sun Nov 15 21:49:34 UTC 2026 ===
+regular_s82 Success Rate: ./fine-tuned, 0.3434420015163002
+=== Starting jepa_s82 Sun Nov 15 22:48:10 UTC 2026 ===
+jepa_s82 TRAIN FAILED
+=== Starting regular_s23 Sun Nov 15 22:49:28 UTC 2026 ===
+regular_s23 Success Rate: ./fine-tuned, 0.34874905231235787
+=== Starting jepa_s23 Sun Nov 15 23:47:08 UTC 2026 ===
+jepa_s23 TRAIN FAILED
+=== Starting regular_s37 Sun Nov 15 23:49:00 UTC 2026 ===
+regular_s37 Success Rate: ./fine-tuned, 0.3434420015163002
+=== Starting jepa_s37 Mon Nov 16 00:46:10 UTC 2026 ===
+jepa_s37 TRAIN FAILED
+=== Starting regular_s84 Mon Nov 16 00:55:09 UTC 2026 ===
+=== Starting jepa_noadd_s82 Mon Nov 16 01:44:41 UTC 2026 ===
+jepa_noadd_s82 Success Rate: ./fine-tuned, 0.36770280515542075
+=== Done Mon Nov 16 03:24:43 UTC 2026 ===
+=== Starting E1 Mon Nov 16 05:00:13 UTC 2026 ===
+E1 Success Rate: ./ft_E1, 0.33131159969673996
+=== Done Mon Nov 16 06:42:17 UTC 2026 ===
+=== Starting E2 Mon Nov 16 06:42:18 UTC 2026 ===
+E2 Success Rate: ./ft_E2, 0.16376042456406367
+=== Done Mon Nov 16 08:33:33 UTC 2026 ===
+=== Starting C1 Mon Nov 16 08:33:47 UTC 2026 ===
+C1 Success Rate: ./ft_C1, 0.36087945413191813
+=== Done Mon Nov 16 10:21:15 UTC 2026 ===
+=== Starting F1 Mon Nov 16 10:21:44 UTC 2026 ===
+F1 Success Rate: ./ft_F1, 0.3206974981046247
+=== Done Mon Nov 16 12:03:05 UTC 2026 ===
+=== Starting F2 Mon Nov 16 12:03:05 UTC 2026 ===
+F2 Success Rate: ./ft_F2, 0.30932524639878695
+=== Done Mon Nov 16 12:57:31 UTC 2026 ===
+=== Starting G1 Mon Nov 16 12:57:58 UTC 2026 ===
+G1 Success Rate: ./ft_G1, 0.39878695981804396
+=== Done Mon Nov 16 14:33:12 UTC 2026 ===
+=== Starting H1 Mon Nov 16 18:14:50 UTC 2026 ===
+H1 Success Rate: ./ft_H1, 0.40333586050037906
+=== Done Mon Nov 16 19:02:24 UTC 2026 ===
+=== Starting H2 Mon Nov 16 19:02:24 UTC 2026 ===
+H2 Success Rate: ./ft_H2, 0.37225170583775585
+=== Done Mon Nov 16 20:43:47 UTC 2026 ===
+=== Starting H1_s23 Mon Nov 16 20:47:33 UTC 2026 ===
+H1_s23 Success Rate: ./ft_H1_s23, 0.3957543593631539
+=== Done Mon Nov 16 21:34:59 UTC 2026 ===
+=== Starting G1_s23 Mon Nov 16 21:34:59 UTC 2026 ===
+G1_s23 Success Rate: ./ft_G1_s23, 0.3949962092494314
+=== Done Mon Nov 16 23:09:55 UTC 2026 ===
+=== Starting H1_s37 Mon Nov 16 23:09:55 UTC 2026 ===
+H1_s37 Success Rate: ./ft_H1_s37, 0.39272175890826383
+=== Done Mon Nov 16 23:56:49 UTC 2026 ===
+=== Starting G1_s37 Mon Nov 16 23:56:49 UTC 2026 ===
+G1_s37 Success Rate: ./ft_G1_s37, 0.39423805913570886
+=== Done Tue Nov 17 01:31:30 UTC 2026 ===
+=== Starting V_lr1e-5 Tue Nov 17 01:35:56 UTC 2026 ===
+V_lr1e-5 TRAIN FAILED
+=== Starting V_lr2e-5 Tue Nov 17 01:57:00 UTC 2026 ===
+V_lr2e-5 TRAIN FAILED
+=== Starting V_lr4e-5 Tue Nov 17 02:02:07 UTC 2026 ===
+V_lr4e-5 TRAIN FAILED
+=== Starting V_lr8e-5 Tue Nov 17 02:07:13 UTC 2026 ===
+V_lr8e-5 TRAIN FAILED
+=== Starting V_lr1e-5 Tue Nov 17 02:59:12 UTC 2026 ===
+V_lr1e-5 Success Rate: ./ft_V_lr1e-5, 0.478
+=== Done Tue Nov 17 03:45:11 UTC 2026 ===
+=== Starting V_lr2e-5 Tue Nov 17 03:45:11 UTC 2026 ===
+V_lr2e-5 Success Rate: ./ft_V_lr2e-5, 0.49
+=== Done Tue Nov 17 04:29:38 UTC 2026 ===
+=== Starting V_lr4e-5 Tue Nov 17 04:29:38 UTC 2026 ===
+V_lr4e-5 Success Rate: ./ft_V_lr4e-5, 0.43866666666666665
+=== Done Tue Nov 17 05:13:37 UTC 2026 ===
+=== Starting V_lr8e-5 Tue Nov 17 05:13:37 UTC 2026 ===
+V_lr8e-5 Success Rate: ./ft_V_lr8e-5, 0.38466666666666666
+=== Done Tue Nov 17 05:58:18 UTC 2026 ===
+=== Starting B1 Tue Nov 17 05:58:37 UTC 2026 ===
+B1 Success Rate: ./ft_B1, 0.48133333333333334
+=== Done Tue Nov 17 07:20:23 UTC 2026 ===
+=== Starting B2 Tue Nov 17 07:20:23 UTC 2026 ===
+B2 Success Rate: ./ft_B2, 0.4846666666666667
+=== Done Tue Nov 17 08:43:49 UTC 2026 ===
+=== Starting B3 Tue Nov 17 08:43:49 UTC 2026 ===
+B3 Success Rate: ./ft_B3, 0.472
+=== Done Tue Nov 17 10:05:57 UTC 2026 ===

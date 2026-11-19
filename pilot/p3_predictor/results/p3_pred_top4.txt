@@ -1,0 +1,179 @@
+Loading weights:   0%|          | 0/146 [00:00<?, ?it/s]Loading weights: 100%|██████████| 146/146 [00:00<00:00, 6173.75it/s]
+data ready in 50s: train 150000 (one-step 22333), val_all 2000, val_one 2000
+decoder trainable parameters: 25.3M
+predictor size top4: 243.3M trainable (243.3M in the Transformer layers)
+init check: cos(pred, z0) = 1.0000 (top4 should be about 1.000)
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer TokenizersBackend. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+before training: one-step cos(pred, z*) 0.644 | decoded step acc 0.080
+step 100/14061 loss 0.4480 cos 0.8880 gn 0.99 lr 2.02e-06 10s
+step 200/14061 loss 0.3326 cos 0.9169 gn 0.85 lr 4.02e-06 21s
+step 300/14061 loss 0.2607 cos 0.9348 gn 0.82 lr 6.02e-06 31s
+step 400/14061 loss 0.2855 cos 0.9286 gn 0.86 lr 8.02e-06 41s
+step 500/14061 loss 0.2646 cos 0.9338 gn 0.81 lr 1.00e-05 51s
+step 600/14061 loss 0.2487 cos 0.9378 gn 0.77 lr 1.20e-05 61s
+step 700/14061 loss 0.2464 cos 0.9384 gn 0.80 lr 1.40e-05 71s
+step 800/14061 loss 0.2470 cos 0.9383 gn 0.73 lr 1.60e-05 81s
+step 900/14061 loss 0.2342 cos 0.9415 gn 0.66 lr 1.80e-05 92s
+step 1000/14061 loss 0.2376 cos 0.9406 gn 0.62 lr 2.00e-05 102s
+step 1100/14061 loss 0.2196 cos 0.9451 gn 0.65 lr 2.00e-05 112s
+step 1200/14061 loss 0.2243 cos 0.9439 gn 0.66 lr 2.00e-05 122s
+step 1300/14061 loss 0.2843 cos 0.9289 gn 0.71 lr 2.00e-05 132s
+step 1400/14061 loss 0.1954 cos 0.9511 gn 0.55 lr 2.00e-05 143s
+step 1500/14061 loss 0.1901 cos 0.9525 gn 0.58 lr 1.99e-05 153s
+step 1600/14061 loss 0.2804 cos 0.9299 gn 0.63 lr 1.99e-05 163s
+step 1700/14061 loss 0.2513 cos 0.9372 gn 0.65 lr 1.99e-05 173s
+step 1800/14061 loss 0.2169 cos 0.9458 gn 0.58 lr 1.98e-05 183s
+step 1900/14061 loss 0.2355 cos 0.9411 gn 0.66 lr 1.98e-05 193s
+step 2000/14061 loss 0.2362 cos 0.9410 gn 0.53 lr 1.97e-05 203s
+step 2100/14061 loss 0.2052 cos 0.9487 gn 0.56 lr 1.97e-05 214s
+step 2200/14061 loss 0.2190 cos 0.9453 gn 0.50 lr 1.96e-05 224s
+step 2300/14061 loss 0.2322 cos 0.9419 gn 0.57 lr 1.96e-05 234s
+step 2400/14061 loss 0.2096 cos 0.9476 gn 0.53 lr 1.95e-05 244s
+step 2500/14061 loss 0.1997 cos 0.9501 gn 0.48 lr 1.94e-05 255s
+step 2600/14061 loss 0.2306 cos 0.9424 gn 0.64 lr 1.93e-05 265s
+step 2700/14061 loss 0.2175 cos 0.9456 gn 0.51 lr 1.93e-05 275s
+step 2800/14061 loss 0.2041 cos 0.9490 gn 0.48 lr 1.92e-05 285s
+step 2900/14061 loss 0.2161 cos 0.9460 gn 0.46 lr 1.91e-05 295s
+step 3000/14061 loss 0.2217 cos 0.9446 gn 0.50 lr 1.90e-05 305s
+step 3100/14061 loss 0.1914 cos 0.9521 gn 0.48 lr 1.89e-05 316s
+step 3200/14061 loss 0.2040 cos 0.9490 gn 0.49 lr 1.88e-05 326s
+step 3300/14061 loss 0.2075 cos 0.9481 gn 0.47 lr 1.87e-05 336s
+step 3400/14061 loss 0.2185 cos 0.9454 gn 0.47 lr 1.85e-05 346s
+step 3500/14061 loss 0.1907 cos 0.9523 gn 0.48 lr 1.84e-05 357s
+step 3600/14061 loss 0.2145 cos 0.9464 gn 0.46 lr 1.83e-05 367s
+step 3700/14061 loss 0.1970 cos 0.9508 gn 0.46 lr 1.82e-05 377s
+step 3800/14061 loss 0.1862 cos 0.9534 gn 0.46 lr 1.80e-05 387s
+step 3900/14061 loss 0.1980 cos 0.9505 gn 0.46 lr 1.79e-05 397s
+step 4000/14061 loss 0.1843 cos 0.9539 gn 0.39 lr 1.78e-05 407s
+step 4100/14061 loss 0.2035 cos 0.9491 gn 0.49 lr 1.76e-05 417s
+step 4200/14061 loss 0.2023 cos 0.9494 gn 0.56 lr 1.75e-05 427s
+step 4300/14061 loss 0.2365 cos 0.9409 gn 0.44 lr 1.73e-05 437s
+step 4400/14061 loss 0.1792 cos 0.9552 gn 0.46 lr 1.72e-05 448s
+step 4500/14061 loss 0.1937 cos 0.9516 gn 0.45 lr 1.70e-05 458s
+step 4600/14061 loss 0.1880 cos 0.9530 gn 0.47 lr 1.68e-05 468s
+== epoch 1: one-step cos 0.935 step acc 0.548 answer 0.216 | all cos 0.948 step acc 0.194 answer 0.084
+step 4700/14061 loss 0.2298 cos 0.9425 gn 0.48 lr 1.67e-05 483s
+step 4800/14061 loss 0.1962 cos 0.9509 gn 0.42 lr 1.65e-05 494s
+step 4900/14061 loss 0.1815 cos 0.9546 gn 0.42 lr 1.63e-05 504s
+step 5000/14061 loss 0.1760 cos 0.9560 gn 0.43 lr 1.61e-05 514s
+step 5100/14061 loss 0.1881 cos 0.9530 gn 0.42 lr 1.60e-05 524s
+step 5200/14061 loss 0.1881 cos 0.9530 gn 0.42 lr 1.58e-05 534s
+step 5300/14061 loss 0.1982 cos 0.9504 gn 0.44 lr 1.56e-05 545s
+step 5400/14061 loss 0.2080 cos 0.9480 gn 0.49 lr 1.54e-05 555s
+step 5500/14061 loss 0.1780 cos 0.9555 gn 0.41 lr 1.52e-05 565s
+step 5600/14061 loss 0.1885 cos 0.9529 gn 0.43 lr 1.50e-05 575s
+step 5700/14061 loss 0.1771 cos 0.9557 gn 0.44 lr 1.48e-05 586s
+step 5800/14061 loss 0.1969 cos 0.9508 gn 0.43 lr 1.46e-05 596s
+step 5900/14061 loss 0.1838 cos 0.9540 gn 0.46 lr 1.44e-05 606s
+step 6000/14061 loss 0.1859 cos 0.9535 gn 0.46 lr 1.42e-05 616s
+step 6100/14061 loss 0.1881 cos 0.9530 gn 0.49 lr 1.40e-05 627s
+step 6200/14061 loss 0.2357 cos 0.9411 gn 0.64 lr 1.38e-05 637s
+step 6300/14061 loss 0.2167 cos 0.9458 gn 0.49 lr 1.36e-05 647s
+step 6400/14061 loss 0.1926 cos 0.9519 gn 0.45 lr 1.34e-05 657s
+step 6500/14061 loss 0.1822 cos 0.9545 gn 0.42 lr 1.32e-05 667s
+step 6600/14061 loss 0.1850 cos 0.9537 gn 0.44 lr 1.30e-05 677s
+step 6700/14061 loss 0.2036 cos 0.9491 gn 0.48 lr 1.28e-05 687s
+step 6800/14061 loss 0.1933 cos 0.9517 gn 0.44 lr 1.26e-05 698s
+step 6900/14061 loss 0.1871 cos 0.9532 gn 0.42 lr 1.24e-05 708s
+step 7000/14061 loss 0.2054 cos 0.9487 gn 0.48 lr 1.21e-05 718s
+step 7100/14061 loss 0.1755 cos 0.9561 gn 0.42 lr 1.19e-05 728s
+step 7200/14061 loss 0.1596 cos 0.9601 gn 0.43 lr 1.17e-05 739s
+step 7300/14061 loss 0.1871 cos 0.9532 gn 0.44 lr 1.15e-05 749s
+step 7400/14061 loss 0.1656 cos 0.9586 gn 0.41 lr 1.13e-05 759s
+step 7500/14061 loss 0.1715 cos 0.9571 gn 0.44 lr 1.11e-05 769s
+step 7600/14061 loss 0.2386 cos 0.9403 gn 0.59 lr 1.08e-05 779s
+step 7700/14061 loss 0.1787 cos 0.9553 gn 0.49 lr 1.06e-05 790s
+step 7800/14061 loss 0.1717 cos 0.9571 gn 0.44 lr 1.04e-05 800s
+step 7900/14061 loss 0.1990 cos 0.9503 gn 0.53 lr 1.02e-05 810s
+step 8000/14061 loss 0.1742 cos 0.9564 gn 0.43 lr 9.99e-06 820s
+step 8100/14061 loss 0.1949 cos 0.9513 gn 0.45 lr 9.77e-06 830s
+step 8200/14061 loss 0.1893 cos 0.9527 gn 0.51 lr 9.56e-06 840s
+step 8300/14061 loss 0.1813 cos 0.9547 gn 0.44 lr 9.34e-06 850s
+step 8400/14061 loss 0.1757 cos 0.9561 gn 0.43 lr 9.13e-06 860s
+step 8500/14061 loss 0.2088 cos 0.9478 gn 0.58 lr 8.92e-06 871s
+step 8600/14061 loss 0.1596 cos 0.9601 gn 0.48 lr 8.71e-06 881s
+step 8700/14061 loss 0.1984 cos 0.9504 gn 0.49 lr 8.50e-06 891s
+step 8800/14061 loss 0.1494 cos 0.9627 gn 0.40 lr 8.29e-06 901s
+step 8900/14061 loss 0.1590 cos 0.9603 gn 0.39 lr 8.09e-06 911s
+step 9000/14061 loss 0.1710 cos 0.9573 gn 0.45 lr 7.88e-06 921s
+step 9100/14061 loss 0.1443 cos 0.9639 gn 0.41 lr 7.68e-06 931s
+step 9200/14061 loss 0.1927 cos 0.9518 gn 0.47 lr 7.48e-06 941s
+step 9300/14061 loss 0.1703 cos 0.9574 gn 0.44 lr 7.28e-06 952s
+== epoch 2: one-step cos 0.942 step acc 0.604 answer 0.338 | all cos 0.953 step acc 0.234 answer 0.106
+step 9400/14061 loss 0.1882 cos 0.9529 gn 0.53 lr 7.09e-06 967s
+step 9500/14061 loss 0.1746 cos 0.9563 gn 0.45 lr 6.89e-06 977s
+step 9600/14061 loss 0.1864 cos 0.9534 gn 0.46 lr 6.70e-06 988s
+step 9700/14061 loss 0.1779 cos 0.9555 gn 0.46 lr 6.51e-06 998s
+step 9800/14061 loss 0.1710 cos 0.9573 gn 0.44 lr 6.33e-06 1008s
+step 9900/14061 loss 0.1687 cos 0.9578 gn 0.46 lr 6.14e-06 1018s
+step 10000/14061 loss 0.1773 cos 0.9557 gn 0.45 lr 5.96e-06 1028s
+step 10100/14061 loss 0.1810 cos 0.9548 gn 0.48 lr 5.78e-06 1039s
+step 10200/14061 loss 0.1527 cos 0.9618 gn 0.42 lr 5.61e-06 1049s
+step 10300/14061 loss 0.1842 cos 0.9539 gn 0.47 lr 5.44e-06 1059s
+step 10400/14061 loss 0.1465 cos 0.9634 gn 0.45 lr 5.27e-06 1070s
+step 10500/14061 loss 0.1867 cos 0.9533 gn 0.47 lr 5.10e-06 1080s
+step 10600/14061 loss 0.1355 cos 0.9661 gn 0.42 lr 4.94e-06 1090s
+step 10700/14061 loss 0.1644 cos 0.9589 gn 0.53 lr 4.78e-06 1100s
+step 10800/14061 loss 0.1627 cos 0.9593 gn 0.46 lr 4.63e-06 1110s
+step 10900/14061 loss 0.1426 cos 0.9643 gn 0.43 lr 4.48e-06 1120s
+step 11000/14061 loss 0.1966 cos 0.9509 gn 0.53 lr 4.33e-06 1130s
+step 11100/14061 loss 0.1823 cos 0.9544 gn 0.46 lr 4.19e-06 1141s
+step 11200/14061 loss 0.1544 cos 0.9614 gn 0.39 lr 4.05e-06 1151s
+step 11300/14061 loss 0.1748 cos 0.9563 gn 0.50 lr 3.91e-06 1161s
+step 11400/14061 loss 0.1702 cos 0.9575 gn 0.50 lr 3.78e-06 1171s
+step 11500/14061 loss 0.1429 cos 0.9643 gn 0.40 lr 3.65e-06 1181s
+step 11600/14061 loss 0.1821 cos 0.9545 gn 0.56 lr 3.53e-06 1192s
+step 11700/14061 loss 0.1625 cos 0.9594 gn 0.47 lr 3.41e-06 1202s
+step 11800/14061 loss 0.1471 cos 0.9632 gn 0.42 lr 3.30e-06 1212s
+step 11900/14061 loss 0.1944 cos 0.9514 gn 0.51 lr 3.19e-06 1222s
+step 12000/14061 loss 0.1639 cos 0.9590 gn 0.51 lr 3.08e-06 1232s
+step 12100/14061 loss 0.2081 cos 0.9480 gn 0.52 lr 2.98e-06 1243s
+step 12200/14061 loss 0.1824 cos 0.9544 gn 0.56 lr 2.89e-06 1253s
+step 12300/14061 loss 0.1602 cos 0.9599 gn 0.51 lr 2.80e-06 1263s
+step 12400/14061 loss 0.1501 cos 0.9625 gn 0.43 lr 2.71e-06 1273s
+step 12500/14061 loss 0.1629 cos 0.9593 gn 0.46 lr 2.63e-06 1283s
+step 12600/14061 loss 0.1513 cos 0.9622 gn 0.45 lr 2.55e-06 1294s
+step 12700/14061 loss 0.1739 cos 0.9565 gn 0.50 lr 2.48e-06 1304s
+step 12800/14061 loss 0.1791 cos 0.9552 gn 0.50 lr 2.41e-06 1314s
+step 12900/14061 loss 0.1778 cos 0.9556 gn 0.50 lr 2.35e-06 1324s
+step 13000/14061 loss 0.1615 cos 0.9596 gn 0.48 lr 2.29e-06 1334s
+step 13100/14061 loss 0.1748 cos 0.9563 gn 0.49 lr 2.24e-06 1345s
+step 13200/14061 loss 0.1668 cos 0.9583 gn 0.49 lr 2.19e-06 1355s
+step 13300/14061 loss 0.1752 cos 0.9562 gn 0.55 lr 2.15e-06 1365s
+step 13400/14061 loss 0.1180 cos 0.9705 gn 0.44 lr 2.11e-06 1375s
+step 13500/14061 loss 0.1555 cos 0.9611 gn 0.43 lr 2.08e-06 1385s
+step 13600/14061 loss 0.1786 cos 0.9553 gn 0.57 lr 2.06e-06 1395s
+step 13700/14061 loss 0.1806 cos 0.9549 gn 0.51 lr 2.03e-06 1406s
+step 13800/14061 loss 0.1652 cos 0.9587 gn 0.56 lr 2.02e-06 1416s
+step 13900/14061 loss 0.1500 cos 0.9625 gn 0.46 lr 2.01e-06 1426s
+step 14000/14061 loss 0.1631 cos 0.9592 gn 0.45 lr 2.00e-06 1436s
+== epoch 3: one-step cos 0.944 step acc 0.630 answer 0.386 | all cos 0.954 step acc 0.250 answer 0.132
+
+FINAL EVALUATION, one-hop predictor, size top4
+one-step (n = 1): 2000 held-out problems
+  oracle   step numeric match 0.965 | answer acc 0.972 | cos to z*_1 1.000
+   ref: <<5*10=50>> | got: <<5*10=50>>
+   ref: <<2000*10/100=200>> | got: <<2000*10*.01=200>>
+   ref: <<10000/200=50>> | got: <<10000/2000=5000>>
+  pred     step numeric match 0.600 | answer acc 0.399 | cos to z*_1 0.943
+  copy_z0  step numeric match 0.081 | answer acc 0.020 | cos to z*_1 0.641
+  skill score S_1 = 1 - D/D_copy = 0.841 | decoded accuracy as a share of the oracle = 0.622
+all chain lengths: 2000 held-out problems
+  oracle   step numeric match 0.860 | answer acc 0.888 | cos to z*_1 1.000
+  pred     step numeric match 0.243 | answer acc 0.131 | cos to z*_1 0.955
+  copy_z0  step numeric match 0.050 | answer acc 0.011 | cos to z*_1 0.657
+  skill score S_1 = 1 - D/D_copy = 0.867 | decoded accuracy as a share of the oracle = 0.283
+     n=1   n= 332 oracle 0.955 pred 0.548 copy 0.078
+     n=2   n= 707 oracle 0.928 pred 0.306 copy 0.079
+     n=3   n= 549 oracle 0.818 pred 0.120 copy 0.022
+     n>=4  n= 412 oracle 0.721 pred 0.056 copy 0.012
+
+P3 size top4: one-step decoded accuracy 0.600 (oracle 0.965, copy 0.081)
+  registered gate (>= 0.80): FAIL
+  ratio reading (>= 8/9 of the oracle): FAIL
+
+LATENCY, batch size 1, 200 one-step questions after 20 warm-up, median ms
+  encoder 13.4 | predictor step 4.26 | decoder (answer) 7.9 | latent total 25.8
+  CoT-length generation proxy 139.1 (median 10 tokens) | answer-only proxy 29.7
+  speed-up over the CoT proxy 5.40x (bar: 2.5x)
+saved p3_pred_top4.pt

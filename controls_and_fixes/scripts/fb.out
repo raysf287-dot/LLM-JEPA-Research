@@ -1,0 +1,33 @@
+fallback rows: 556 of 5973
+eq rows whose last number equals the final answer: 4784 of 5417
+---
+First find the total number of snakes eaten: 5 snakes/jaguar * 6 jaguars = 30 snakes
+Then find the total number of birds eaten per day: 30 snakes * 3 birds/snake = 90 snakes
+Then multiply the number of snakes by the number of beetles per snake to find the total number of beetles eaten per day: 90 snakes * 12 beetles/snake = 1080 beetles
+#### 1080
+---
+First find how many liters of the seawater are salt: 2 liters * 20% = .4 liters
+Then multiply that amount by 1000 ml/liter to find the number of ml of salt Jack gets: .4 liters * 1000 ml/liter = 400 ml
+#### 400
+---
+In the first four houses, there are a total of 4 houses * 3 gnomes = 12 gnomes.
+Therefore, the fifth house had 20 total gnomes – 12 gnomes = 8 gnomes.
+#### 8
+---
+Let her previous monthly income be p
+The cost of her rent and utilities was 40% of p which is (40/100)*p = 2p/5
+Her income was increased by $600 so it is now p+$600
+The cost of her rent and utilities now amount to 25% of (p+$600) which is (25/100)*(p+$600) = (p+$600)/4
+Equating both expressions for cost of rent and utilities: 2p/5 = (p+$600)/4
+Multiplying both sides of the equation by 20 gives 8p = 5p+$3000
+Subtracting 5p from both sides gives: 3p = $3000
+Dividing both sides by 3 gives p = $1000
+#### 1000
+---
+From the details given, the car has traveled 5 meters at the 1st turn + 8 meters after the 2nd turn + 0 meters after the 4th turn = 13 meters around the ring.
+It must therefore have driven 23 total meters – 13 calculated meters = 10 meters after the 3rd turn.
+#### 10
+---
+First find the total number of starfish arms: 7 starfish * 5 arms/starfish = 35 arms
+Then add the number of seastar arms to find the total number of arms: 35 arms + 14 arms = 49 arms
+#### 49
