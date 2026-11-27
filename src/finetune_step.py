@@ -63,6 +63,7 @@ def get_assistant_messages(model_name, dataset, messages):
 MAX_STEPS = 12
 PAD_FIX = False
 ATTN_DROPOUT = 0.0
+ALIGN = None  # option 1: dict(heads=[(l,h)], beta, random, K) when --align_heads is set
 
 
 def compute_step_positions(tokenizer, formatted, content, max_length, add_special_tokens):
@@ -237,11 +238,24 @@ def load_and_prepare_dataset(data_file, tokenizer, model_name,
                 exit(0)
 
         if regular:
-            return {
+            out = {
                 "input_ids": input_ids_list,
                 "labels": labels_list,
                 "attention_mask": attention_mask_list,
             }
+            if ALIGN is not None:  # option 1: operand -> source-number token alignments
+                import random as _random
+                from align_utils import token_alignments
+                al = {"al_q": [], "al_s": [], "al_e": []}
+                for messages in examples['messages']:
+                    fm = tokenizer.apply_chat_template(get_messages(model_name, messages), tokenize=False, add_generation_prompt=False)
+                    q, a = messages[1]["content"], messages[2]["content"]
+                    rng = _random.Random(sum(ord(c) * (i + 1) for i, c in enumerate(q[:200])))
+                    aq, as_, ae = token_alignments(tokenizer, fm, q, a, max_length, not unmask_assistant_special_tokens,
+                                                   K=ALIGN["K"], random_ctrl=ALIGN["random"], rng=rng)
+                    al["al_q"].append(aq); al["al_s"].append(as_); al["al_e"].append(ae)
+                out.update(al)
+            return out
         else:
             return {
                 "input_ids": input_ids_list,
@@ -528,6 +542,7 @@ def setup_model_and_tokenizer(model_name, use_lora=True, lora_rank=16, pretrain=
             low_cpu_mem_usage=True,
             use_cache=False,  # Disable KV cache for training
             attention_dropout=ATTN_DROPOUT,
+            **({"attn_implementation": "eager"} if ALIGN is not None else {}),  # option 1 needs attention weights
         )
 
     if new_tokens:
@@ -883,6 +898,37 @@ class RepresentationTrainer(Trainer):
         return (total_loss, main_outputs) if return_outputs else total_loss
 
 
+class AlignCollator:
+    """Option 1: keep the fixed-length alignment fields out of the base collator, then add them back as tensors."""
+    KEYS = ("al_q", "al_s", "al_e")
+    def __init__(self, base):
+        self.base = base
+    def __call__(self, features):
+        extra = {k: torch.tensor([f.pop(k) for f in features], dtype=torch.long) for k in self.KEYS if k in features[0]}
+        b = self.base(features); b.update(extra); return b
+
+
+class AlignTrainer(Trainer):
+    """Option 1: LM loss + beta * mean(-log attention mass on the operand's source span) over selected heads."""
+    def __init__(self, *a, align=None, **k):
+        super().__init__(*a, **k); self.align = align; self._n = 0
+    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+        from align_utils import align_loss
+        al = [inputs.pop(k) for k in AlignCollator.KEYS]
+        kw = {"num_items_in_batch": num_items_in_batch} if (self.model_accepts_loss_kwargs and num_items_in_batch is not None) else {}
+        out = model(**inputs, output_attentions=True, **kw)  # LM loss exactly as the default Trainer computes it
+        lm = out.loss
+        la, mass = align_loss(out.attentions, self.align["heads"], *al)
+        # The default LM loss is already normalised over the whole accumulated batch (num_items_in_batch), so the
+        # Trainer does not divide by the accumulation steps; scale the per-micro-batch align mean the same way.
+        ga = self.current_gradient_accumulation_steps if kw else 1
+        loss = lm + self.align["beta"] * la / ga
+        self._n += 1
+        if self._n % 64 == 1 and torch.cuda.current_device() == 0:
+            print(f"[align] step-call {self._n}: lm(acc-normalised) {lm.item():.4f} align {la.item():.4f} mass {mass.item():.3f} pairs {(al[0] >= 0).sum().item()}", flush=True)
+        return (loss, out) if return_outputs else loss
+
+
 class AnswerOnlyCollator:
     """Wrap a collator and mask every label up to and including the last assistant header."""
     def __init__(self, base, tokenizer):
@@ -1008,6 +1054,10 @@ def main():
     parser.add_argument("--jepa_ratio", type=float, default=-1.0, help="When >0, randomly select this ratio of batches to apply JEPA. This implments Random JEPA-Loss Dropout (LD). If LD = alpha, jepa_ratio = 1 - alpha")
     parser.add_argument("--use_default_data_collator", action="store_true", help="When set, Use `default_data_collator`.")
     parser.add_argument("--step_targets", action="store_true", help="One JEPA term per solution step (needs --predictors>=1).")
+    parser.add_argument("--align_heads", type=str, default="", help="Option 1: heads to supervise, e.g. '6:3,8:11' (layer:head).")
+    parser.add_argument("--align_beta", type=float, default=0.1, help="Option 1: weight of the operand-attention loss.")
+    parser.add_argument("--align_random", action="store_true", help="Option 1 control: random number span as the target.")
+    parser.add_argument("--align_K", type=int, default=32, help="Option 1: max aligned operands per example.")
     parser.add_argument("--pad_fix", action="store_true", help="Pad with <|finetune_right_pad_id|> so <|eot_id|> labels are not masked.")
     parser.add_argument("--jepa_layer", type=int, default=-1, help="hidden_states index used for both views (default -1 = last, post-norm).")
     parser.add_argument("--center", action="store_true", help="Centre each view with an EMA of its batch mean before the cosine.")
@@ -1025,9 +1075,14 @@ def main():
     parser.add_argument("--unmask_assistant_special_tokens", action="store_true", help="When set, unmask assistant special tokens.")
 
     args = parser.parse_args()
-    global PAD_FIX, ATTN_DROPOUT
+    global PAD_FIX, ATTN_DROPOUT, ALIGN
     PAD_FIX = args.pad_fix
     ATTN_DROPOUT = args.attn_dropout
+    if args.align_heads:
+        assert args.regular, "--align_heads is implemented for --regular only"
+        ALIGN = {"heads": [tuple(int(x) for x in h.split(":")) for h in args.align_heads.split(",")],
+                 "beta": args.align_beta, "random": args.align_random, "K": args.align_K}
+        print(f"[align] heads {ALIGN['heads']} beta {ALIGN['beta']} random {ALIGN['random']} K {ALIGN['K']}")
     
     # Validate arguments
     if not args.train_file and not args.data_file:
@@ -1150,6 +1205,8 @@ def main():
     
     if args.answer_only:
         data_collator = AnswerOnlyCollator(data_collator, tokenizer)
+    if ALIGN is not None:
+        data_collator = AlignCollator(data_collator)
 
     # Training arguments - optimized for multi-GPU stability
     eval_steps = args.eval_steps if not args.pretrain else args.eval_steps * 20
@@ -1187,7 +1244,7 @@ def main():
         # eval_steps=eval_steps,
         
         # Saving
-        save_strategy="steps",
+        save_strategy="no",  # was "steps": per-epoch checkpoints (~15 GB each) filled an 80 GB disk; final model is still saved
         save_steps=save_steps,
         save_total_limit=args.num_epochs * 4,
 
@@ -1199,6 +1256,8 @@ def main():
         fp16=False,
         bf16=True,
         gradient_checkpointing=True,  # Enable for memory efficiency
+        # option 1: reentrant checkpointing returns attention weights without grad_fn, so the align loss would not train
+        **({"gradient_checkpointing_kwargs": {"use_reentrant": False}} if ALIGN is not None else {}),
         dataloader_drop_last=True,   # Drop last incomplete batch
         
         # Memory optimization
@@ -1231,7 +1290,7 @@ def main():
     if args.regular:
         if torch.cuda.current_device() == 0:
             print("\n3. Initializing regular trainer...")
-        trainer = Trainer(
+        trainer = (AlignTrainer if ALIGN is not None else Trainer)(
             model=model,
             args=training_args,
             train_dataset=train_dataset,
@@ -1239,6 +1298,7 @@ def main():
             tokenizer=tokenizer,
             data_collator=data_collator,
             callbacks=[flop_callback] if args.track_flop else [],
+            **({"align": ALIGN} if ALIGN is not None else {}),
         )
     else:
         if torch.cuda.current_device() == 0:

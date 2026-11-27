@@ -1,0 +1,1404 @@
+"""LLM-JEPA.
+"""
+
+import copy
+import math
+import os
+# import re
+import time
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.profiler import profile, ProfilerActivity
+import json
+from datasets import load_dataset
+import shutil
+from transformers import (
+    default_data_collator,
+    AutoConfig,
+    AutoTokenizer, 
+    AutoModelForCausalLM,
+    TrainingArguments,
+    TrainerCallback,
+    Trainer,
+    DataCollatorForLanguageModeling
+)
+from peft import LoraConfig, get_peft_model, TaskType
+import argparse
+
+
+def get_messages(model_name, messages):
+    if "google/gemma" in model_name:
+        full_messages = copy.deepcopy(messages)[1:3]
+        full_messages[0]["content"] = messages[0]["content"] + "\n\n" + full_messages[0]["content"]
+        return full_messages
+    else:
+        return messages
+
+
+def get_user_messages(model_name, messages):
+    return copy.deepcopy(messages)[1:2]
+
+
+# gsm8k_pattern = re.compile(r"\n#### (.+)$")
+
+
+def get_assistant_messages(model_name, dataset, messages):
+    # if dataset.startswith("gsm8k"):
+    #     messages = copy.deepcopy(messages)
+    #     gt_match = re.search(gsm8k_pattern, messages[2]["content"])
+    #     gt_answer = None if not gt_match else gt_match.group(1)
+    #     if gt_answer:
+    #         messages[2]["content"] = messages[2]["content"].replace(gt_answer, "")
+
+    if "google/gemma" in model_name:
+        assistant_messages = copy.deepcopy(messages)[2:3]
+        assistant_messages[0]["role"] = "user"
+        return assistant_messages
+    else:
+        return messages[2:3]
+
+
+
+MAX_STEPS = 12
+PAD_FIX = False
+ATTN_DROPOUT = 0.0
+ALIGN = None  # option 1: dict(heads=[(l,h)], beta, random, K) when --align_heads is set
+
+
+def compute_step_positions(tokenizer, formatted, content, max_length, add_special_tokens):
+    """Token index of every newline in the assistant content (end of each reasoning line).
+    Causal attention makes the hidden state there a summary of the solution prefix up to that line.
+    Padded with -1 to MAX_STEPS."""
+    enc = tokenizer(formatted, truncation=True, max_length=max_length, return_offsets_mapping=True,
+                    add_special_tokens=add_special_tokens)
+    offsets = enc["offset_mapping"]
+    base = formatted.rfind(content)
+    assert base >= 0, "assistant content not found in formatted chat"
+    out = []
+    for c, ch in enumerate(content):
+        if ch != "\n":
+            continue
+        pos = base + c
+        for ti, (a, b) in enumerate(offsets):
+            if a <= pos < b:
+                out.append(ti)
+                break
+    out = out[:MAX_STEPS]
+    return out + [-1] * (MAX_STEPS - len(out))
+
+
+def load_and_prepare_dataset(data_file, tokenizer, model_name,
+                             max_length=2048, debug=0, predictors=0, regular=False, train_all=False,
+                             plain=False, front_pred=False, reverse_pred=False, unmask_assistant_special_tokens=False,
+                             step_targets=False):
+    """Load JSONL dataset and format for training with proper label masking"""
+    
+    # Load dataset
+    dataset = load_dataset('json', data_files=data_file)['train']
+    if  torch.cuda.current_device() == 0:
+        print(f"Loaded {len(dataset)} examples from {data_file}")
+    
+    def tokenize_conversations(examples):
+        """Tokenize conversations and mask input tokens properly"""
+        input_ids_list = []
+        labels_list = []
+        attention_mask_list = []
+        user_input_ids_list = []
+        user_labels_list = []
+        user_attention_mask_list = []
+        assistant_input_ids_list = []
+        assistant_labels_list = []
+        assistant_attention_mask_list = []
+        step_pos_list = []
+
+        for msg_idx, messages in enumerate(examples['messages']):
+            # Apply chat template if available, otherwise format manually
+            full_messages = get_messages(model_name, messages)
+            if plain:
+                if train_all:
+                    formatted_chat = messages[1]["content"] + "<|eot_id|>"
+                else:
+                    formatted_chat = messages[1]["content"] + "<|perception|>" + messages[2]["content"] + "<|eot_id|>"
+            else:
+                formatted_chat = tokenizer.apply_chat_template(
+                    full_messages,
+                    tokenize=False,
+                    add_generation_prompt=False,
+                )
+            
+            # Tokenize the formatted conversation with padding to max_length
+            tokenized = tokenizer(
+                formatted_chat,
+                truncation=True,
+                max_length=max_length,
+                padding="max_length",  # Pad to max_length for consistent tensor shapes
+                return_tensors=None,
+                add_special_tokens=not unmask_assistant_special_tokens
+            )
+            
+            input_ids = tokenized["input_ids"]
+            attention_mask = tokenized["attention_mask"]
+            
+            # Create labels with proper masking
+            if train_all:
+                labels = create_labels_for_all(input_ids, attention_mask)
+            elif unmask_assistant_special_tokens:
+                labels = create_labels_with_masked_prompt(messages, tokenizer, input_ids, attention_mask)
+            else:
+                labels = create_masked_labels(messages, tokenizer, input_ids, attention_mask)
+            
+            input_ids_list.append(input_ids)
+            labels_list.append(labels)
+            attention_mask_list.append(attention_mask)
+
+            if data_file.startswith("hellaswag"):
+                user_messages = examples["text"][msg_idx]
+                if debug == 8:
+                    print(json.dumps(messages, indent=2))
+                    print(json.dumps(user_messages, indent=2))
+            else:
+                if reverse_pred:
+                    user_messages = get_assistant_messages(model_name, data_file, messages)
+                else:
+                    user_messages = get_user_messages(model_name, messages)
+            to_add = predictors
+            while to_add > 0:
+                if front_pred:
+                    user_messages[0]["content"] = f"<|predictor_{to_add}|>" + user_messages[0]["content"]
+                else:
+                    user_messages[0]["content"] += f"<|predictor_{to_add}|>"
+                to_add -= 1
+            if plain:
+                formatted_chat_user = user_messages[0]["content"]
+            else:
+                formatted_chat_user = tokenizer.apply_chat_template(
+                    user_messages,
+                    tokenize=False,
+                    add_generation_prompt=False,
+                )
+            tokenized_user = tokenizer(
+                formatted_chat_user,
+                truncation=True,
+                max_length=max_length,
+                padding="max_length",  # Pad to max_length for consistent tensor shapes
+                return_tensors=None,
+                add_special_tokens=not unmask_assistant_special_tokens
+            )
+            user_input_ids_list.append(tokenized_user["input_ids"])
+            user_labels_list.append([-100] * len(tokenized_user["input_ids"]))
+            user_attention_mask_list.append(tokenized_user["attention_mask"])
+
+            if data_file.startswith("hellaswag"):
+                assistant_messages = examples["code"][msg_idx]
+                if debug == 8:
+                    print(json.dumps(assistant_messages, indent=2))
+                    exit(0)
+            else:
+                if reverse_pred:
+                    assistant_messages = get_user_messages(model_name, messages)
+                else:
+                    assistant_messages = get_assistant_messages(model_name, data_file, messages)
+            if plain:
+                formatted_chat_assistant = assistant_messages[0]["content"]
+            else:
+                formatted_chat_assistant = tokenizer.apply_chat_template(
+                    assistant_messages,
+                    tokenize=False,
+                    add_generation_prompt=False,
+                )
+            tokenized_assistant = tokenizer(
+                formatted_chat_assistant,
+                truncation=True,
+                max_length=max_length,
+                padding="max_length",  # Pad to max_length for consistent tensor shapes
+                return_tensors=None,
+                add_special_tokens=not unmask_assistant_special_tokens
+            )
+            assistant_input_ids_list.append(tokenized_assistant["input_ids"])
+            assistant_labels_list.append([-100] * len(tokenized_assistant["input_ids"]))
+            assistant_attention_mask_list.append(tokenized_assistant["attention_mask"])
+            if step_targets:
+                step_pos_list.append(compute_step_positions(tokenizer, formatted_chat_assistant, assistant_messages[0]["content"],
+                                                            max_length, not unmask_assistant_special_tokens))
+
+            if debug == 3 and torch.cuda.current_device() == 0:
+                print(messages)
+                print(input_ids_list)
+                print(tokenizer.decode(input_ids_list[0]))
+                print(labels_list)
+                print(tokenizer.decode([item for item in labels_list[0] if item != -100]))
+                print(attention_mask_list)
+                print("user Token IDs:", tokenized_user["input_ids"])
+                print("user Decoded:", tokenizer.decode(tokenized_user["input_ids"]))
+                print("assistant Token IDs:", tokenized_assistant["input_ids"])
+                print("assistant Decoded:", tokenizer.decode(tokenized_assistant["input_ids"]))
+        
+            if debug == 3:
+                exit(0)
+
+        if regular:
+            out = {
+                "input_ids": input_ids_list,
+                "labels": labels_list,
+                "attention_mask": attention_mask_list,
+            }
+            if ALIGN is not None:  # option 1: operand -> source-number token alignments
+                import random as _random
+                from align_utils import token_alignments
+                al = {"al_q": [], "al_s": [], "al_e": []}
+                for messages in examples['messages']:
+                    fm = tokenizer.apply_chat_template(get_messages(model_name, messages), tokenize=False, add_generation_prompt=False)
+                    q, a = messages[1]["content"], messages[2]["content"]
+                    rng = _random.Random(sum(ord(c) * (i + 1) for i, c in enumerate(q[:200])))
+                    aq, as_, ae = token_alignments(tokenizer, fm, q, a, max_length, not unmask_assistant_special_tokens,
+                                                   K=ALIGN["K"], random_ctrl=ALIGN["random"], rng=rng)
+                    al["al_q"].append(aq); al["al_s"].append(as_); al["al_e"].append(ae)
+                out.update(al)
+            return out
+        else:
+            return {
+                "input_ids": input_ids_list,
+                "labels": labels_list,
+                "attention_mask": attention_mask_list,
+                "input_ids_user": user_input_ids_list,
+                "labels_user": user_labels_list,
+                "attention_mask_user": user_attention_mask_list,
+                "input_ids_assistant": assistant_input_ids_list,
+                "labels_assistant": assistant_labels_list,
+                "attention_mask_assistant": assistant_attention_mask_list,
+                **({"step_pos_assistant": step_pos_list} if step_targets else {}),
+            }
+    
+    # def format_messages_manually(messages):
+    #     """Manual formatting when chat template is not available"""
+    #     formatted_parts = []
+        
+    #     for msg in messages:
+    #         role = msg['role']
+    #         content = msg['content']
+            
+    #         if role == 'system':
+    #             formatted_parts.append(f"<|system|>\n{content}")
+    #         elif role == 'user':
+    #             formatted_parts.append(f"<|user|>\n{content}")
+    #         elif role == 'assistant':
+    #             formatted_parts.append(f"<|assistant|>\n{content}")
+        
+    #     return "\n\n".join(formatted_parts) + "<|end|>"
+    
+    def create_labels_for_all(input_ids, attention_mask):
+        """
+        Create labels for all tokens except padding (mask those with -100).
+        """
+        labels = []
+        for i, mask in enumerate(attention_mask):
+            if mask == 0:  # Padding token
+                labels.append(-100)
+            else:
+                labels.append(input_ids[i])
+        return labels
+
+    def create_masked_labels(messages, tokenizer, input_ids, attention_mask):
+        """Create labels with input tokens masked (-100)"""
+        labels = [-100] * len(input_ids)
+
+        # Mask padding tokens in labels
+        for i, mask in enumerate(attention_mask):
+            if mask == 0:  # Padding token
+                labels[i] = -100
+
+        # Find assistant responses and unmask only those tokens
+        for msg in messages:
+            if msg['role'] == 'assistant':
+                assistant_content = msg['content']
+
+                # Find where this assistant response appears in the tokenized text
+                assistant_tokens = tokenizer.encode(assistant_content, add_special_tokens=False)
+
+                # Find the position of assistant response in input_ids
+                decoded_assistant = [tokenizer.decode(item) for item in assistant_tokens]
+                decoded_input = [tokenizer.decode(item) for item in input_ids]
+                for i in range(len(input_ids) - len(assistant_tokens) + 1):
+                    # Only check non-padding tokens
+                    if debug == 4 and torch.cuda.current_device() == 0:
+                        print(f"=======input_ids: {input_ids[i:i + len(assistant_tokens)]}")
+                        print(f"assistant_tokens: {assistant_tokens}")
+                    # if attention_mask[i] == 1 and input_ids[i:i+len(assistant_tokens)] == assistant_tokens:
+                    if attention_mask[i] == 1 and decoded_input[i:i + len(assistant_tokens)] == decoded_assistant:
+                        # Unmask the assistant response tokens
+                        for j in range(i, min(i + len(assistant_tokens), len(input_ids))):
+                            if attention_mask[j] == 1:  # Only unmask non-padding tokens
+                                labels[j] = input_ids[j]
+                        break
+
+                if debug == 4:
+                    exit(0)
+
+        return labels
+
+    def create_labels_with_masked_prompt(messages, tokenizer, input_ids, attention_mask):
+        """ Create labels with prompt tokens masked (-100) """
+        assert tokenizer.padding_side == "right", "This function assumes right side padding"
+
+        if plain:
+            prompt = tokenizer(messages[1]["content"] + "<|perception|>", add_special_tokens=False)['input_ids']
+        else:
+            prompt = tokenizer.apply_chat_template(messages[:-1], add_generation_prompt=True)
+
+        labels = [label if unmasked else -100 for label, unmasked in zip(input_ids, attention_mask)]
+        labels[:len(prompt)] = [-100] * len(prompt)
+
+        if debug == 4 and torch.cuda.current_device() == 0:
+            print("Ids:", tokenizer.decode(input_ids))
+            print("Unmasked:", tokenizer.decode([label for label in labels if label != -100]))
+            exit(0)
+
+        return labels
+    
+    # Tokenize dataset
+    tokenized_dataset = dataset.map(
+        tokenize_conversations,
+        batched=True,
+        remove_columns=dataset.column_names
+    )
+    
+    return tokenized_dataset
+
+
+# def use_llama_3_2_chat_template(tokenizer):
+#     llama_3_2_chat_template = """{{- bos_token }}
+# {%- if custom_tools is defined %}
+#     {%- set tools = custom_tools %}
+# {%- endif %}
+# {%- if not tools_in_user_message is defined %}
+#     {%- set tools_in_user_message = true %}
+# {%- endif %}
+# {%- if not date_string is defined %}
+#     {%- if strftime_now is defined %}
+#         {%- set date_string = strftime_now("%d %b %Y") %}
+#     {%- else %}
+#         {%- set date_string = "26 Jul 2024" %}
+#     {%- endif %}
+# {%- endif %}
+# {%- if not tools is defined %}
+#     {%- set tools = none %}
+# {%- endif %}
+
+# {#- This block extracts the system message, so we can slot it into the right place. #}
+# {%- if messages[0]['role'] == 'system' %}
+#     {%- set system_message = messages[0]['content']|trim %}
+#     {%- set messages = messages[1:] %}
+# {%- else %}
+#     {%- set system_message = "" %}
+# {%- endif %}
+
+# {#- System message #}
+# {{- "<|start_header_id|>system<|end_header_id|>\n\n" }}
+# {%- if tools is not none %}
+#     {{- "Environment: ipython\n" }}
+# {%- endif %}
+# {{- "Cutting Knowledge Date: December 2023\n" }}
+# {{- "Today Date: " + date_string + "\n\n" }}
+# {%- if tools is not none and not tools_in_user_message %}
+#     {{- "You have access to the following functions. To call a function, please respond with JSON for a function call." }}
+#     {{- 'Respond in the format {"name": function name, "parameters": dictionary of argument name and its value}.' }}
+#     {{- "Do not use variables.\n\n" }}
+#     {%- for t in tools %}
+#         {{- t | tojson(indent=4) }}
+#         {{- "\n\n" }}
+#     {%- endfor %}
+# {%- endif %}
+# {{- system_message }}
+# {{- "<|eot_id|>" }}
+
+# {#- Custom tools are passed in a user message with some extra guidance #}
+# {%- if tools_in_user_message and not tools is none %}
+#     {#- Extract the first user message so we can plug it in here #}
+#     {%- if messages | length != 0 %}
+#         {%- set first_user_message = messages[0]['content']|trim %}
+#         {%- set messages = messages[1:] %}
+#     {%- else %}
+#         {{- raise_exception("Cannot put tools in the first user message when there's no first user message!") }}
+# {%- endif %}
+#     {{- '<|start_header_id|>user<|end_header_id|>\n\n' -}}
+#     {{- "Given the following functions, please respond with a JSON for a function call " }}
+#     {{- "with its proper arguments that best answers the given prompt.\n\n" }}
+#     {{- 'Respond in the format {"name": function name, "parameters": dictionary of argument name and its value}.' }}
+#     {{- "Do not use variables.\n\n" }}
+#     {%- for t in tools %}
+#         {{- t | tojson(indent=4) }}
+#         {{- "\n\n" }}
+#     {%- endfor %}
+#     {{- first_user_message + "<|eot_id|>"}}
+# {%- endif %}
+
+# {%- for message in messages %}
+#     {%- if not (message.role == 'ipython' or message.role == 'tool' or 'tool_calls' in message) %}
+#         {{- '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' }}
+#     {%- elif 'tool_calls' in message %}
+#         {%- if not message.tool_calls|length == 1 %}
+#             {{- raise_exception("This model only supports single tool-calls at once!") }}
+#         {%- endif %}
+#         {%- set tool_call = message.tool_calls[0].function %}
+#         {{- '<|start_header_id|>assistant<|end_header_id|>\n\n' -}}
+#         {{- '{"name": "' + tool_call.name + '", ' }}
+#         {{- '"parameters": ' }}
+#         {{- tool_call.arguments | tojson }}
+#         {{- "}" }}
+#         {{- "<|eot_id|>" }}
+#     {%- elif message.role == "tool" or message.role == "ipython" %}
+#         {{- "<|start_header_id|>ipython<|end_header_id|>\n\n" }}
+#         {%- if message.content is mapping or message.content is iterable %}
+#             {{- message.content | tojson }}
+#         {%- else %}
+#             {{- message.content }}
+#         {%- endif %}
+#         {{- "<|eot_id|>" }}
+#     {%- endif %}
+# {%- endfor %}
+# {%- if add_generation_prompt %}
+#     {{- '<|start_header_id|>assistant<|end_header_id|>\n\n' }}
+# {%- endif %}
+# """
+#     if tokenizer.chat_template != llama_3_2_chat_template:
+#         tokenizer.chat_template = llama_3_2_chat_template
+
+
+def setup_model_and_tokenizer(model_name, use_lora=True, lora_rank=16, pretrain=False, debug=0, seed=None):
+    """Setup model and tokenizer with optional LoRA"""
+    
+    # Load tokenizer
+    if "apple/OpenELM" in model_name:
+        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
+        tokenizer.chat_template = "{% for message in messages %}\n{% if message['role'] == 'user' %}\n{{ '<|user|>\n' + message['content'] + eos_token }}\n{% elif message['role'] == 'system' %}\n{{ '<|system|>\n' + message['content'] + eos_token }}\n{% elif message['role'] == 'assistant' %}\n{{ '<|assistant|>\n'  + message['content'] + eos_token }}\n{% endif %}\n{% if loop.last and add_generation_prompt %}\n{{ '<|assistant|>' }}\n{% endif %}\n{% endfor %}"
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        assert tokenizer.chat_template is not None, f"{model_name} does not have chat template."
+    
+    # use_llama_3_2_chat_template(tokenizer)
+    
+    # Add special tokens if not present
+    if "microsoft/phi" in model_name:
+        tokenizer.add_special_tokens({"bos_token": "<|startoftext|>"})
+        if torch.cuda.current_device() == 0:
+            print("Added <|startoftext|> token")
+
+    special_tokens = ["<|predictor_1|>", "<|predictor_2|>", "<|predictor_3|>", "<|predictor_4|>", "<|predictor_5|>",
+                      "<|predictor_6|>", "<|predictor_7|>", "<|predictor_8|>", "<|predictor_9|>", "<|predictor_10|>",
+                      "<|start_header_id|>", "<|end_header_id|>", "<|eot_id|>", "<|perception|>"]
+    new_tokens = [token for token in special_tokens if token not in tokenizer.vocab]
+    
+    if new_tokens:
+        tokenizer.add_special_tokens({"additional_special_tokens": new_tokens})
+        if torch.cuda.current_device() == 0:
+            print(f"Added {len(new_tokens)} new special tokens")
+    
+    # Set pad token
+    if PAD_FIX:  # keep <|eot_id|> trainable: pad with a different reserved token
+        pid = tokenizer.convert_tokens_to_ids("<|finetune_right_pad_id|>")
+        assert pid is not None and pid != tokenizer.unk_token_id and pid != tokenizer.eos_token_id, pid
+        tokenizer.pad_token = "<|finetune_right_pad_id|>"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    
+    # Load model with better device mapping for multi-GPU
+    device_map = None
+    if torch.cuda.is_available():
+        world_size = int(os.environ.get('WORLD_SIZE', 1))
+        if world_size == 1:
+            device_map = "auto"
+        else:
+            # For multi-GPU with torchrun, don't use device_map
+            device_map = None
+    
+    if pretrain:
+        if seed is not None:
+            torch.manual_seed(seed)
+        config = AutoConfig.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_config(
+            config,
+            torch_dtype=torch.bfloat16,
+        )
+        rank = torch.distributed.get_rank()
+        device = torch.device(f"cuda:{rank}")
+        model.to(device)
+        for p in model.parameters():
+            torch.distributed.broadcast(p.data, src=0)
+        for b in model.buffers():
+            torch.distributed.broadcast(b.data, src=0)
+        if debug == 6:
+            for name, param in model.named_parameters():
+                print(f"Parameter name: {name}, Shape: {param.shape}")
+                print(param)
+                exit(0)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.bfloat16,
+            device_map=device_map,
+            trust_remote_code=True,
+            # Add these for better multi-GPU stability
+            low_cpu_mem_usage=True,
+            use_cache=False,  # Disable KV cache for training
+            attention_dropout=ATTN_DROPOUT,
+            **({"attn_implementation": "eager"} if ALIGN is not None else {}),  # option 1 needs attention weights
+        )
+
+    if new_tokens:
+        model.resize_token_embeddings(len(tokenizer))
+    
+    # Resize embeddings if we added new tokens
+    if new_tokens:
+        model.resize_token_embeddings(len(tokenizer))
+    
+    # Setup LoRA if requested
+    if use_lora:
+        lora_config = LoraConfig(
+            task_type=TaskType.CAUSAL_LM,
+            inference_mode=False,
+            r=lora_rank,
+            lora_alpha=lora_rank * 2,
+            lora_dropout=0.1,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        )
+        model = get_peft_model(model, lora_config)
+        model.enable_input_require_grads()
+        if torch.cuda.current_device() == 0:
+            model.print_trainable_parameters()
+    
+    return model, tokenizer
+
+
+class ResHead(nn.Module):
+    """Predictor head on the question side: x + MLP(x), last layer zero-initialised (starts as identity)."""
+    def __init__(self, d):
+        super().__init__()
+        self.net = nn.Sequential(nn.Linear(d, d), nn.GELU(), nn.Linear(d, d))
+        nn.init.zeros_(self.net[2].weight); nn.init.zeros_(self.net[2].bias)
+
+    def forward(self, x):
+        return x + self.net(x)
+
+
+class RepresentationTrainer(Trainer):
+    """
+    Trainer to regularize representations.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        # Extract custom loss parameters
+        self.lbd = kwargs.pop('lbd', 1.0)
+        self.gamma = kwargs.pop('gamma', 1.0)
+        self.last_token = kwargs.pop('last_token', -2)
+        self.debug = kwargs.pop('debug', 0)
+        self.additive_mask = kwargs.pop('additive_mask', False)
+        self.jepa_l2 = kwargs.pop('jepa_l2', False)
+        self.jepa_mse = kwargs.pop('jepa_mse', False)
+        self.infonce = kwargs.pop('infonce', False)
+        self.jepa_ratio = kwargs.pop('jepa_ratio', -1.0)
+        self.step_targets = kwargs.pop('step_targets', False)
+        self.stopgrad = kwargs.pop('stopgrad', False)
+        self.jepa_layer = kwargs.pop('jepa_layer', -1)
+        self.center = kwargs.pop('center', False)
+        self.batch_center = kwargs.pop('batch_center', False)
+        self.var_coef = kwargs.pop('var_coef', 0.0)
+        self._mu_u = None; self._mu_a = None
+        self.shuffle_targets = kwargs.pop('shuffle_targets', False)
+        self.const_target = kwargs.pop('const_target', False)
+        self.noise_target = kwargs.pop('noise_target', False)
+        self._const_v = None
+        self.n_pred = kwargs.pop('n_pred', 0)
+        self._call = 0
+        if self.step_targets:
+            assert not self.additive_mask, 'step_targets is not implemented for --additive_mask'
+            assert self.n_pred >= 1, 'step_targets needs --predictors >= 1'
+        assert self.jepa_l2 + self.jepa_mse <= 1, "Only one of jepa_l2 and jepa_mse can be True."
+        super().__init__(*args, **kwargs)
+    
+    def _last_token_index(self, input_ids, labels, attention_mask):
+        index = []
+        def unpad(input_ids, attention_mask):
+            result = []
+            can_break = False
+            for id, mask in zip(input_ids, attention_mask):
+                if mask != 0:
+                    can_break = True
+                if mask == 0 and can_break:
+                    break
+                result.append(id)
+            return result
+
+        for i in range(input_ids.shape[0]):
+            uii = unpad(input_ids[i], attention_mask[i])
+            if self.debug == 1 and torch.cuda.current_device() == 0:
+                print(f"====={len(uii)}=====")
+                print(input_ids[i][len(uii) - 4], input_ids[i][len(uii) - 3], input_ids[i][len(uii) - 2], input_ids[i][len(uii) - 1], -100 if len(uii) >= len(input_ids[i]) else input_ids[i][len(uii)])
+                print(labels[i][len(uii) - 4], labels[i][len(uii) - 3], labels[i][len(uii) - 2], labels[i][len(uii) - 1], -100 if len(uii) >= len(labels[i]) else labels[i][len(uii)])
+                print(attention_mask[i][len(uii) - 4], attention_mask[i][len(uii) - 3], attention_mask[i][len(uii) - 2], attention_mask[i][len(uii) - 1], -100 if len(uii) >= len(attention_mask[i]) else attention_mask[i][len(uii)])
+            index.append(len(uii) + self.last_token)
+        
+        index_tensor = torch.tensor(index).to(input_ids.device)
+        if self.debug == 1 and torch.cuda.current_device() == 0:
+            print(index_tensor)
+
+        return index_tensor
+    
+    def _build_additive_mask(self, k: int):
+        mask = torch.zeros((k, k), dtype=torch.float32)
+        mask[torch.triu(torch.ones(k, k), diagonal=1) == 1] = -torch.inf
+        return mask
+
+    def build_with_additive_mask(self, inputs):
+        if self.jepa_ratio > 0.0:
+            if torch.rand(1).item() > self.jepa_ratio:
+                return {
+                    "input_ids": inputs["input_ids"],
+                    "labels": inputs["labels"],
+                    "attention_mask": inputs["attention_mask"],
+                }, True
+        batch_size = inputs["input_ids"].shape[0]
+        seq_length = inputs["input_ids"].shape[-1]
+        device = inputs["input_ids"].device
+        mask = torch.full((batch_size * 2, 1, seq_length, seq_length), -torch.inf).to(device)
+        last_token = self._last_token_index(inputs["input_ids"], inputs["labels"], inputs["attention_mask"])        
+        last_token_user = self._last_token_index(inputs["input_ids_user"], inputs["labels_user"], inputs["attention_mask_user"])
+        last_token_assistant = self._last_token_index(inputs["input_ids_assistant"], inputs["labels_assistant"], inputs["attention_mask_assistant"])
+        for i in range(inputs["input_ids_user"].shape[0]):
+            length, length_user, length_assistant = last_token[i] + 1, last_token_user[i] + 1, last_token_assistant[i] + 1
+            inputs["input_ids_user"][i, length_user:length_user + length_assistant] = inputs["input_ids_assistant"][i, :length_assistant]
+            inputs["labels_user"][i, length_user:length_user + length_assistant] = inputs["labels_assistant"][i, :length_assistant]
+            mask[i, :, 0:length, 0:length] = self._build_additive_mask(length)
+            mask[i + batch_size, :, 0:length_user, 0:length_user] = self._build_additive_mask(length_user)
+            mask[i + batch_size, :, length_user:length_user + length_assistant, length_user:length_user + length_assistant] = self._build_additive_mask(length_assistant)
+        self._last_token_user = last_token_user
+        self._last_token_assistant = last_token_assistant + last_token_user + 1
+        return {
+                "input_ids": torch.cat([inputs["input_ids"],
+                                        inputs["input_ids_user"]], dim=0),
+                "labels": torch.cat([inputs["labels"],
+                                    inputs["labels_user"]], dim=0),
+                "attention_mask": mask,
+            }, False
+
+    def forward(self, model, inputs):
+        """
+        Custom forward pass that handles all model calls.
+        """
+        # Main forward pass for language modeling
+        if self.additive_mask:
+            llm_inputs, skip_jepa = self.build_with_additive_mask(inputs)
+        else:
+            llm_inputs = {
+                "input_ids": torch.cat([inputs["input_ids"],
+                                        inputs["input_ids_user"],
+                                        inputs["input_ids_assistant"]], dim=0),
+                "labels": torch.cat([inputs["labels"],
+                                    inputs["labels_user"],
+                                    inputs["labels_assistant"]], dim=0),
+                "attention_mask": torch.cat([inputs["attention_mask"],
+                                            inputs["attention_mask_user"],
+                                            inputs["attention_mask_assistant"]], dim=0),
+            }
+        if self.debug == 7 and torch.cuda.current_device() == 0:
+            torch.set_printoptions(threshold=float("inf"))
+            torch.set_printoptions(linewidth=360)
+            print(">>>input_ids<<<")
+            print(llm_inputs["input_ids"])
+            print(">>>labels<<<")
+            print(llm_inputs["labels"])
+            print(">>>attention_mask<<<")
+            print(llm_inputs["attention_mask"])
+            if self.additive_mask:
+                print(">>>last_token_user<<<")
+                print(self._last_token_user)
+                print(">>>last_token_assistant<<<")
+                print(self._last_token_assistant)
+        if self.debug == 7:
+            exit(0)
+        if self.debug == 2 and torch.cuda.current_device() == 0:
+            print("=====before:outputs=====")
+            print("input_ids shapes:")
+            print(llm_inputs["input_ids"].shape)
+            print("labels shapes::")
+            print(llm_inputs["labels"].shape)
+            print("attention_mask shapes:")
+            print(llm_inputs["attention_mask"].shape)
+
+        with torch.set_grad_enabled(True):
+            outputs = model(**llm_inputs, output_hidden_states=True)
+
+        if self.debug == 2 and torch.cuda.current_device() == 0:
+            print(f"=====outputs.loss.shape:{outputs.loss.shape}=====")
+            print(f"=====outputs.hidden_states[-1].shape:{outputs.hidden_states[-1].shape}=====")
+        
+        if self.additive_mask:
+            if skip_jepa:
+                user_hidden_states = None
+                assistant_hidden_states = None
+            else:    
+                batch_size = llm_inputs["input_ids"].shape[0] // 2
+                user_hidden_states = outputs.hidden_states[-1][batch_size: batch_size * 2]
+                assistant_hidden_states = user_hidden_states
+        else:
+            batch_size = llm_inputs["input_ids"].shape[0] // 3
+            user_hidden_states = outputs.hidden_states[self.jepa_layer][batch_size: batch_size * 2]
+            assistant_hidden_states = outputs.hidden_states[self.jepa_layer][batch_size * 2:]
+
+        if self.debug == 2 and torch.cuda.current_device() == 0:
+            print(f"====={user_hidden_states.shape}=====")
+            print(f"====={assistant_hidden_states.shape}=====")
+       
+        # Return all outputs needed for loss computation
+        return {
+            'main_outputs': outputs,
+            'user_hidden_states': user_hidden_states,
+            'assistant_hidden_states': assistant_hidden_states,
+        }
+
+    def _step_pairs(self, user_hs, asst_hs, index_user, index_assistant, step_pos):
+        """Predictor token j (1..k) is paired with the assistant state after step ceil(j*N/k) of N targets.
+        Targets = newline states (one per reasoning line) + the final answer state (the original LLM-JEPA target).
+        Token k therefore always keeps the original term."""
+        k = self.n_pred
+        U, A = [], []
+        for b in range(user_hs.shape[0]):
+            valid = [int(p) for p in step_pos[b].tolist() if p >= 0]
+            targets = valid + [int(index_assistant[b])]
+            N = len(targets)
+            for j in range(1, k + 1):
+                t = targets[-(-j * N // k) - 1]
+                U.append(user_hs[b, int(index_user[b]) - (k - j), :])
+                A.append(asst_hs[b, t, :])
+        return torch.stack(U), torch.stack(A)
+
+    @staticmethod
+    def _var_pen(u, a):
+        """VICReg-style variance penalty on unit-normalised, batch-centred embeddings rescaled so that an
+        isotropic spread has per-coordinate std 1. Penalises dimensional collapse."""
+        pen = 0.0
+        for x in (u, a):
+            x = x - x.mean(0, keepdim=True)
+            z = F.normalize(x, dim=-1) * (x.shape[-1] ** 0.5)
+            std = torch.sqrt(z.var(dim=0) + 1e-4)
+            pen = pen + F.relu(1.0 - std).mean()
+        return pen / 2
+
+    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+        """
+        Compute loss with additional regularization terms.
+        """
+        # Get indeices
+        if not self.additive_mask:
+            index_user = self._last_token_index(inputs["input_ids_user"], inputs["labels_user"], inputs["attention_mask_user"])
+            index_assistant = self._last_token_index(inputs["input_ids_assistant"], inputs["labels_assistant"], inputs["attention_mask_assistant"])
+        first_dim = inputs["input_ids_user"].shape[0]
+        if self.debug == 1 and torch.cuda.current_device() == 0:
+            print("=====last tokens=====")
+            print(inputs["input_ids_user"][range(first_dim), index_user])
+            print(inputs["input_ids_user"][range(first_dim), index_user - 1])
+            print(inputs["input_ids_assistant"][range(first_dim), index_assistant])
+            print(inputs["input_ids_assistant"][range(first_dim), index_assistant - 1])
+
+        # Get all forward pass results
+        forward_results = self.forward(model, inputs)
+        
+        # Extract main language modeling loss
+        main_outputs = forward_results['main_outputs']
+        lm_loss = main_outputs.loss
+
+        # Compute representation similarity loss
+        user_hidden_states = forward_results['user_hidden_states']
+        assistant_hidden_states = forward_results['assistant_hidden_states']
+        
+        # Get embeddings (using last token of each sequence)
+        if user_hidden_states is not None:
+            if self.additive_mask:
+                index_user = self._last_token_user
+                index_assistant = self._last_token_assistant
+            if self.step_targets:
+                user_embedding, assistant_embedding = self._step_pairs(
+                    user_hidden_states, assistant_hidden_states, index_user, index_assistant,
+                    inputs["step_pos_assistant"])
+            else:
+                user_embedding = user_hidden_states[range(first_dim), index_user, :]
+                assistant_embedding = assistant_hidden_states[range(first_dim), index_assistant, :]
+            if self.shuffle_targets:  # control: pair each question with another problem's solution state
+                assistant_embedding = assistant_embedding.roll(1, dims=0)
+            if self.stopgrad:
+                assistant_embedding = assistant_embedding.detach()
+            if self.noise_target:  # control: random per-example target, no data content
+                assistant_embedding = torch.randn_like(assistant_embedding.detach())
+            if self.const_target:  # control: fixed random direction, independent of the data
+                if self._const_v is None:
+                    g = torch.Generator().manual_seed(1234)
+                    self._const_v = F.normalize(torch.randn(assistant_embedding.shape[-1], generator=g), dim=0).to(assistant_embedding.device)
+                assistant_embedding = self._const_v.to(assistant_embedding.dtype).unsqueeze(0).expand_as(assistant_embedding)
+            user_embedding = user_embedding.float(); assistant_embedding = assistant_embedding.float()
+            if self.batch_center:  # centre with the current batch's own mean: residuals cannot share a direction
+                user_embedding = user_embedding - user_embedding.mean(0, keepdim=True)
+                assistant_embedding = assistant_embedding - assistant_embedding.mean(0, keepdim=True)
+            elif self.center:  # DINO-style centring with an EMA of each view's mean: removes the shared common-mode direction
+                with torch.no_grad():
+                    bu, ba = user_embedding.mean(0), assistant_embedding.mean(0)
+                    if self._mu_u is None:
+                        self._mu_u, self._mu_a = bu.clone(), ba.clone()
+                    mu_u, mu_a = self._mu_u.clone(), self._mu_a.clone()
+                    self._mu_u = 0.99 * self._mu_u + 0.01 * bu; self._mu_a = 0.99 * self._mu_a + 0.01 * ba
+                user_embedding = user_embedding - mu_u; assistant_embedding = assistant_embedding - mu_a
+            head = getattr(self.accelerator.unwrap_model(model), 'jepa_head', None)
+            if head is not None:
+                user_embedding = head(user_embedding)
+
+            # Compute cosine similarity
+            cosine_similarity = F.cosine_similarity(user_embedding, assistant_embedding, dim=-1)
+            if self.debug == 1 and torch.cuda.current_device() == 0:
+                print(user_embedding.shape, assistant_embedding.shape)
+                print(cosine_similarity.shape)
+    
+            # Compute total loss
+            if self.jepa_l2:
+                jepa_loss = torch.linalg.norm(user_embedding - assistant_embedding, ord=2, dim=-1).mean()
+            elif self.jepa_mse:
+                jepa_loss = torch.mean((user_embedding - assistant_embedding) ** 2)
+            elif self.infonce:
+                ue_norm = F.normalize(user_embedding, p=2, dim=1)
+                ae_norm = F.normalize(assistant_embedding, p=2, dim=1)
+                cosine_sim = torch.mm(ue_norm, ae_norm.T)
+                infonce_logit = cosine_sim / 0.07  # temperature
+                infonce_label = torch.arange(cosine_sim.size(0), device=cosine_sim.device)
+                jepa_loss = F.cross_entropy(infonce_logit, infonce_label)
+                if self.debug == 8:
+                    print(cosine_sim.shape, infonce_logit.shape, infonce_label.shape, jepa_loss.shape)
+                    exit(0)
+            else:
+                jepa_loss = 1.0 - torch.mean(cosine_similarity)
+        else:
+            jepa_loss = 0.0
+
+        if user_hidden_states is not None and self.var_coef > 0:
+            assert user_embedding.shape[0] >= 4, 'variance penalty needs a batch of at least 4'
+            vp = self._var_pen(user_embedding, assistant_embedding)
+            self._last_var = float(vp)
+            jepa_loss = jepa_loss + self.var_coef * vp
+        total_loss = self.gamma * lm_loss + self.lbd * jepa_loss
+        self._call += 1
+        if user_hidden_states is not None and self._call % 64 == 0 and torch.cuda.current_device() == 0:
+            print(f"[jepa] call={self._call} lm={lm_loss.item():.4f} jepa={float(jepa_loss):.4f} cos={cosine_similarity.mean().item():.4f} cos_rolled={F.cosine_similarity(user_embedding.detach(), assistant_embedding.detach().roll(1, 0), dim=-1).mean().item():.4f} var={getattr(self, '_last_var', 0.0):.4f}")
+
+        if self.debug == 2 and torch.cuda.current_device() == 0:
+            print(lm_loss, self.lbd, torch.mean(cosine_similarity))
+
+        if self.debug == 1 or self.debug == 2:
+            exit(0)
+
+        if self.debug == 5 and torch.cuda.current_device() == 0:
+            print(f"llm_loss: {lm_loss.float()}, jepa_loss: {jepa_loss.float()}")
+
+        return (total_loss, main_outputs) if return_outputs else total_loss
+
+
+class AlignCollator:
+    """Option 1: keep the fixed-length alignment fields out of the base collator, then add them back as tensors."""
+    KEYS = ("al_q", "al_s", "al_e")
+    def __init__(self, base):
+        self.base = base
+    def __call__(self, features):
+        extra = {k: torch.tensor([f.pop(k) for f in features], dtype=torch.long) for k in self.KEYS if k in features[0]}
+        b = self.base(features); b.update(extra); return b
+
+
+class AlignTrainer(Trainer):
+    """Option 1: LM loss + beta * mean(-log attention mass on the operand's source span) over selected heads."""
+    def __init__(self, *a, align=None, **k):
+        super().__init__(*a, **k); self.align = align; self._n = 0
+    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+        from align_utils import align_loss
+        al = [inputs.pop(k) for k in AlignCollator.KEYS]
+        kw = {"num_items_in_batch": num_items_in_batch} if (self.model_accepts_loss_kwargs and num_items_in_batch is not None) else {}
+        out = model(**inputs, output_attentions=True, **kw)  # LM loss exactly as the default Trainer computes it
+        lm = out.loss
+        la, mass = align_loss(out.attentions, self.align["heads"], *al)
+        # The default LM loss is already normalised over the whole accumulated batch (num_items_in_batch), so the
+        # Trainer does not divide by the accumulation steps; scale the per-micro-batch align mean the same way.
+        ga = self.current_gradient_accumulation_steps if kw else 1
+        loss = lm + self.align["beta"] * la / ga
+        self._n += 1
+        if self._n % 64 == 1 and torch.cuda.current_device() == 0:
+            print(f"[align] step-call {self._n}: lm(acc-normalised) {lm.item():.4f} align {la.item():.4f} mass {mass.item():.3f} pairs {(al[0] >= 0).sum().item()}", flush=True)
+        return (loss, out) if return_outputs else loss
+
+
+class AnswerOnlyCollator:
+    """Wrap a collator and mask every label up to and including the last assistant header."""
+    def __init__(self, base, tokenizer):
+        self.base = base
+        self.header = tokenizer.encode("<|start_header_id|>assistant<|end_header_id|>\n\n", add_special_tokens=False)
+        self._shown = False
+    def __call__(self, features):
+        b = self.base(features)
+        ids, lab = b["input_ids"], b["labels"]
+        H = len(self.header); h = torch.tensor(self.header)
+        for r in range(ids.shape[0]):
+            row = ids[r]; start = None
+            for i in range(row.shape[0] - H, -1, -1):
+                if torch.equal(row[i:i + H], h): start = i + H; break
+            assert start is not None, "assistant header not found"
+            lab[r, :start] = -100
+        if not self._shown and torch.cuda.current_device() == 0:
+            print(f"[answer_only] first batch: label tokens per row = {(lab != -100).sum(1).tolist()} of {lab.shape[1]}", flush=True)
+            self._shown = True
+        b["labels"] = lab
+        return b
+
+
+class FootprintCallback(TrainerCallback):
+    """Per-epoch main-view LM loss on held-out and train subsets, plus relative weight drift from init."""
+    def __init__(self, trainer_ref, train_ds, eval_ds, collator, out_path, n=300, bs=8):
+        self.tr = trainer_ref; self.out = out_path; self.bs = bs; self.collator = collator
+        self.eval_ds = eval_ds.select(range(min(n, len(eval_ds))))
+        self.train_ds = train_ds.shuffle(seed=0).select(range(min(n, len(train_ds))))
+        self.init = None
+    def _snap(self, model):
+        return [p.detach().float().cpu().clone() for p in model.parameters()]
+    def _loss(self, model, ds):
+        keep = ("input_ids", "attention_mask", "labels")
+        tot, cnt = 0.0, 0
+        model.eval()
+        with torch.no_grad():
+            for i in range(0, len(ds), self.bs):
+                feats = [{k: ds[j][k] for k in ("input_ids", "attention_mask") } for j in range(i, min(i + self.bs, len(ds)))]
+                b = self.collator(feats)
+                b = {k: v.to(model.device) for k, v in b.items() if k in keep}
+                out = model(**b)
+                n_tok = int((b["labels"][:, 1:] != -100).sum())
+                tot += float(out.loss) * n_tok; cnt += n_tok
+        model.train()
+        return tot / max(cnt, 1)
+    def on_train_begin(self, args, state, control, model=None, **kw):
+        self.init = self._snap(model)
+    def on_epoch_end(self, args, state, control, model=None, **kw):
+        if torch.cuda.current_device() != 0: return
+        num = den = 0.0
+        for p, p0 in zip(model.parameters(), self.init):
+            d = p.detach().float().cpu() - p0
+            num += float((d ** 2).sum()); den += float((p0 ** 2).sum())
+        rec = dict(epoch=round(state.epoch, 2), step=state.global_step, heldout_lm=self._loss(model, self.eval_ds),
+                   train_lm=self._loss(model, self.train_ds), rel_drift=(num / den) ** 0.5)
+        print("[footprint]", rec, flush=True)
+        with open(self.out, "a") as f: f.write(json.dumps(rec) + "\n")
+
+
+class ProfilerFLOPCallback(TrainerCallback):
+    def __init__(self, profile_steps=10):
+        self.profile_steps = profile_steps
+        self.total_flops = 0
+        
+    def on_step_begin(self, args, state, control, **kwargs):
+        if state.global_step < self.profile_steps:
+            self.profiler = profile(
+                activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+                record_shapes=True,
+                with_flops=True  # This enables FLOP counting if available
+            )
+            self.profiler.__enter__()
+    
+    def on_step_end(self, args, state, control, **kwargs):
+        if state.global_step < self.profile_steps:
+            self.profiler.__exit__(None, None, None)
+            
+            # Extract FLOP information
+            events = self.profiler.key_averages()
+            step_flops = sum(event.flops for event in events if event.flops > 0)
+            self.total_flops += step_flops
+            
+            if torch.cuda.current_device() == 0:  # and (state.global_step == 63 or state.global_step % 10 == 0):
+                print(f"Step {state.global_step}: FLOPs: {step_flops:,.0f}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Fine-tune Gemma-3-1B")
+    parser.add_argument("--train_file", type=str, help="Path to training JSONL file")
+    parser.add_argument("--eval_file", type=str, help="Path to evaluation JSONL file")
+    parser.add_argument("--data_file", type=str, help="Path to single JSONL file (will be split)")
+    parser.add_argument("--model_name", type=str, default="meta-llama/Llama-3.2-1B-Instruct", help="Model name/path")
+    parser.add_argument("--output_dir", type=str, default="./llama3-1b-fted", help="Output directory")
+    parser.add_argument("--max_length", type=int, default=512, help="Maximum sequence length")
+    parser.add_argument("--batch_size", type=int, default=4, help="Per device batch size")
+    parser.add_argument("--grad_accum", type=int, default=4, help="Gradient accumulation steps")
+    parser.add_argument("--learning_rate", type=float, default=2e-5, help="Learning rate")
+    parser.add_argument("--num_epochs", type=int, default=3, help="Number of training epochs")
+    parser.add_argument("--eval_steps", type=int, default=10, help="Evaluation steps")
+    parser.add_argument("--lora", action="store_true", help="Enable LoRA (default: full fine-tuning)")
+    parser.add_argument("--lora_rank", type=int, default=16, help="LoRA rank. Default: 16.")
+    parser.add_argument("--eval_split", type=float, default=0.2, help="Evaluation split ratio (if using single data file)")
+    parser.add_argument("--split_seed", type=int, default=42, help="Random seed for train/eval split")
+    parser.add_argument("--finetune_seed", type=int, default=42, help="Random seed for fine-tuning")
+    parser.add_argument("--predictors", type=int, default=0, help="Number of predictor tokens")
+    parser.add_argument("--lbd", type=float, default=0.1, help="Lambda for similarity loss")
+    parser.add_argument("--gamma", type=float, default=1.0, help="Gamma for LLM loss")
+    parser.add_argument("--last_token", type=int, default=-1, help="Index of last token, -1 is '<|eot|>'")
+    parser.add_argument("--debug", type=int, default=0, help="Debug level. 0 means no debug")
+    parser.add_argument("--regular", action="store_true", help="Use regular transformer.")
+    parser.add_argument("--track_flop", action="store_true", help="Whether to track FLOPs.")
+    parser.add_argument("--pretrain", action="store_true", help="Whether to pretrain from scratch.")
+    parser.add_argument("--train_all", action="store_true", help="Whether to compute loss from all tokens.")
+    parser.add_argument("--plain", action="store_true", help="When set, do not apply chat format. If --train_all is not set, use `<|perceptioin|>` to connect query and answer. If --train_all is set, only train query.")
+    parser.add_argument("--additive_mask", action="store_true", help="When set, Use an additive mask to compute both user and assistant in 1 forward pass.")
+    parser.add_argument("--jepa_l2", action="store_true", help="When set, Use l2 norm as JEPA loss.")
+    parser.add_argument("--jepa_mse", action="store_true", help="When set, Use Mean Squared Error as JEPA loss.")
+    parser.add_argument("--front_pred", action="store_true", help="When set, Put [Pred] token at the beginning of `Text`.")
+    parser.add_argument("--reverse_pred", action="store_true", help="When set, Use `Code` to predict `Text`.")
+    parser.add_argument("--infonce", action="store_true", help="When set, Use InfoNCE loss.")
+    parser.add_argument("--same_flop", action="store_true", help="When set, Use same number of flops per epoch.")
+    parser.add_argument("--jepa_ratio", type=float, default=-1.0, help="When >0, randomly select this ratio of batches to apply JEPA. This implments Random JEPA-Loss Dropout (LD). If LD = alpha, jepa_ratio = 1 - alpha")
+    parser.add_argument("--use_default_data_collator", action="store_true", help="When set, Use `default_data_collator`.")
+    parser.add_argument("--step_targets", action="store_true", help="One JEPA term per solution step (needs --predictors>=1).")
+    parser.add_argument("--align_heads", type=str, default="", help="Option 1: heads to supervise, e.g. '6:3,8:11' (layer:head).")
+    parser.add_argument("--align_beta", type=float, default=0.1, help="Option 1: weight of the operand-attention loss.")
+    parser.add_argument("--align_random", action="store_true", help="Option 1 control: random number span as the target.")
+    parser.add_argument("--align_K", type=int, default=32, help="Option 1: max aligned operands per example.")
+    parser.add_argument("--pad_fix", action="store_true", help="Pad with <|finetune_right_pad_id|> so <|eot_id|> labels are not masked.")
+    parser.add_argument("--jepa_layer", type=int, default=-1, help="hidden_states index used for both views (default -1 = last, post-norm).")
+    parser.add_argument("--center", action="store_true", help="Centre each view with an EMA of its batch mean before the cosine.")
+    parser.add_argument("--batch_center", action="store_true", help="Centre each view with the current batch mean (needs batch >= 4).")
+    parser.add_argument("--var_coef", type=float, default=0.0, help="Weight of the VICReg-style variance penalty (0 = off).")
+    parser.add_argument("--proj_head", action="store_true", help="Residual MLP predictor head on the question side.")
+    parser.add_argument("--shuffle_targets", action="store_true", help="Control: pair each question with a different problem's solution embedding.")
+    parser.add_argument("--const_target", action="store_true", help="Control: pull the question state toward one fixed random unit vector (no data content).")
+    parser.add_argument("--answer_only", action="store_true", help="Compute the LM loss only on the assistant reply (mask the prompt tokens).")
+    parser.add_argument("--noise_target", action="store_true", help="Control: target is a fresh random Gaussian vector per example and step (varies, but carries no data content).")
+    parser.add_argument("--weight_decay", type=float, default=0.0, help="Weight decay (generic-regulariser control).")
+    parser.add_argument("--attn_dropout", type=float, default=0.0, help="Attention dropout (generic-regulariser control).")
+    parser.add_argument("--footprint_file", type=str, default=None, help="Held-out JSONL: log per-epoch held-out/train LM loss and weight drift to footprint.jsonl.")
+    parser.add_argument("--stopgrad", action="store_true", help="Detach the solution-view (target) embedding.")
+    parser.add_argument("--unmask_assistant_special_tokens", action="store_true", help="When set, unmask assistant special tokens.")
+
+    args = parser.parse_args()
+    global PAD_FIX, ATTN_DROPOUT, ALIGN
+    PAD_FIX = args.pad_fix
+    ATTN_DROPOUT = args.attn_dropout
+    if args.align_heads:
+        assert args.regular, "--align_heads is implemented for --regular only"
+        ALIGN = {"heads": [tuple(int(x) for x in h.split(":")) for h in args.align_heads.split(",")],
+                 "beta": args.align_beta, "random": args.align_random, "K": args.align_K}
+        print(f"[align] heads {ALIGN['heads']} beta {ALIGN['beta']} random {ALIGN['random']} K {ALIGN['K']}")
+    
+    # Validate arguments
+    if not args.train_file and not args.data_file:
+        parser.error("Must provide either --train_file or --data_file")
+    
+    if args.train_file and args.data_file:
+        parser.error("Cannot use both --train_file and --data_file. Choose one.")
+    
+    if torch.cuda.current_device() == 0:
+        print("=== Fine-tuning Script ===")
+
+    if torch.cuda.current_device() == 0:
+        if args.train_file:
+            print(f"Train file: {args.train_file}")
+            if args.eval_file:
+                print(f"Eval file: {args.eval_file}")
+            else:
+                print("No eval file provided - training without evaluation")
+        else:
+            print(f"Data file: {args.data_file} (will split {args.eval_split:.1%} for eval)")
+    
+        print(f"Model: {args.model_name}")
+        print(f"Output: {args.output_dir}")
+        print(f"Using LoRA: {args.lora}")
+        print(f"LoRA rank: {args.lora_rank}")
+    
+    # Check if running with torchrun
+    world_size = int(os.environ.get('WORLD_SIZE', 1))
+    local_rank = int(os.environ.get('LOCAL_RANK', 0))
+    
+    if world_size > 1:
+        if torch.cuda.current_device() == 0:
+            print(f"Running with torchrun: world_size={world_size}, local_rank={local_rank}")
+        # Initialize distributed training
+        torch.distributed.init_process_group(backend='nccl')
+        torch.cuda.set_device(local_rank)
+    
+    # Setup model and tokenizer
+    if torch.cuda.current_device() == 0:
+        print("\n1. Loading model and tokenizer...")
+    model, tokenizer = setup_model_and_tokenizer(
+        args.model_name, use_lora=args.lora, lora_rank=args.lora_rank, pretrain=args.pretrain,
+        debug=args.debug, seed=args.finetune_seed)
+    if args.proj_head:
+        model.jepa_head = ResHead(model.config.hidden_size).float()
+    
+    # Load and prepare dataset
+    if torch.cuda.current_device() == 0:
+        print("\n2. Loading and preparing dataset...")
+    
+    if args.train_file:
+        # Load separate train and eval files
+        if torch.cuda.current_device() == 0:
+            print(f"Loading training data from {args.train_file}")
+        train_dataset = load_and_prepare_dataset(
+            args.train_file, tokenizer, args.model_name,
+            args.max_length, predictors=args.predictors, regular=args.regular,
+            debug=args.debug, train_all=args.train_all, plain=args.plain,
+            front_pred=args.front_pred, reverse_pred=args.reverse_pred,
+            unmask_assistant_special_tokens=args.unmask_assistant_special_tokens,
+            step_targets=args.step_targets
+        )
+        
+        if args.eval_file:
+            if torch.cuda.current_device() == 0:
+                print(f"Loading evaluation data from {args.eval_file}")
+            eval_dataset = load_and_prepare_dataset(
+                args.eval_file, tokenizer, args.model_name,
+                args.max_length, regular=args.regular,
+                debug=args.debug, train_all=args.train_all, plain=args.plain,
+                front_pred=args.front_pred, reverse_pred=args.reverse_pred,
+                unmask_assistant_special_tokens=args.unmask_assistant_special_tokens
+            )
+        else:
+            eval_dataset = None
+            if torch.cuda.current_device() == 0:
+                print("No evaluation file provided")
+    
+    else:
+        # Load single file and split
+        if torch.cuda.current_device() == 0:
+            print(f"Loading data from {args.data_file} and splitting...")
+        full_dataset = load_and_prepare_dataset(
+            args.data_file, tokenizer, args.model_name,
+            args.max_length, predictors=args.predictors, regular=args.regular,
+            debug=args.debug, train_all=args.train_all, plain=args.plain,
+            front_pred=args.front_pred, reverse_pred=args.reverse_pred,
+            unmask_assistant_special_tokens=args.unmask_assistant_special_tokens
+        )
+
+        if args.eval_split > 0:
+            split_dataset = full_dataset.train_test_split(
+                test_size=args.eval_split, 
+                seed=args.split_seed,
+                shuffle=True
+            )
+            train_dataset = split_dataset['train']
+            eval_dataset = split_dataset['test']
+        else:
+            train_dataset = full_dataset
+            eval_dataset = None
+    
+    # Print dataset info
+    if torch.cuda.current_device() == 0:
+        print(f"Train samples: {len(train_dataset)}")
+        if eval_dataset:
+            print(f"Eval samples: {len(eval_dataset)}")
+        else:
+            print("No evaluation dataset")
+    
+    # Data collator - don't use padding since we already padded
+    if args.use_default_data_collator:
+        data_collator = default_data_collator
+    else:
+        data_collator = DataCollatorForLanguageModeling(
+            tokenizer=tokenizer,
+            mlm=False,  # We're doing causal LM, not masked LM
+            pad_to_multiple_of=None,  # We already padded to max_length
+        )
+    
+    if args.answer_only:
+        data_collator = AnswerOnlyCollator(data_collator, tokenizer)
+    if ALIGN is not None:
+        data_collator = AlignCollator(data_collator)
+
+    # Training arguments - optimized for multi-GPU stability
+    eval_steps = args.eval_steps if not args.pretrain else args.eval_steps * 20
+    save_steps = len(train_dataset) // (world_size * args.batch_size * args.grad_accum)
+    if args.same_flop:
+        if args.jepa_ratio > 0.0:
+            save_steps = int(save_steps / (1 + args.jepa_ratio))
+            args.num_epochs = int(math.ceil(args.num_epochs / (1 + args.jepa_ratio)))
+        elif args.additive_mask:
+            save_steps = save_steps // 2
+            args.num_epochs = int(math.ceil(args.num_epochs / 2))
+        elif not args.regular:
+            save_steps = save_steps // 3
+            args.num_epochs = int(math.ceil(args.num_epochs / 3))
+        if torch.cuda.current_device() == 0:
+            print(f">>>>> --same_flop is active: Save checkpoint every: {save_steps} steps, run {args.num_epochs} epochs")
+    output_dir = os.path.abspath(args.output_dir)
+    if torch.cuda.current_device() == 0:
+        shutil.rmtree(output_dir, ignore_errors=True)
+        os.makedirs(output_dir, exist_ok=True)
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        overwrite_output_dir=True,
+        
+        # Training parameters
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size,
+        gradient_accumulation_steps=args.grad_accum,
+        learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
+        num_train_epochs=args.num_epochs,
+        
+        # Evaluation
+        eval_strategy="no",  # "steps" if eval_dataset else "no",
+        # eval_steps=eval_steps,
+        
+        # Saving
+        save_strategy="no",  # was "steps": per-epoch checkpoints (~15 GB each) filled an 80 GB disk; final model is still saved
+        save_steps=save_steps,
+        save_total_limit=args.num_epochs * 4,
+
+        # Logging
+        logging_dir=f"{args.output_dir}/logs",
+        logging_steps=args.eval_steps,
+        
+        # Optimization - key changes for stability
+        fp16=False,
+        bf16=True,
+        gradient_checkpointing=True,  # Enable for memory efficiency
+        # option 1: reentrant checkpointing returns attention weights without grad_fn, so the align loss would not train
+        **({"gradient_checkpointing_kwargs": {"use_reentrant": False}} if ALIGN is not None else {}),
+        dataloader_drop_last=True,   # Drop last incomplete batch
+        
+        # Memory optimization
+        dataloader_num_workers=0,    # Avoid multiprocessing issues
+        
+        # Multi-GPU settings - completely disable FSDP
+        ddp_find_unused_parameters=False,
+        ddp_backend="nccl" if world_size > 1 else None,
+        
+        # Explicitly disable FSDP and sharding
+        fsdp="",
+        fsdp_config={},
+        
+        # Other
+        report_to="none",
+        remove_unused_columns=False,
+        load_best_model_at_end=True if eval_dataset else False,
+        
+        # Disable problematic optimizations
+        tf32=False,  # May help with stability
+        
+        # Set seed for reproducibility
+        seed=args.finetune_seed,
+        data_seed=args.finetune_seed,
+    )
+    
+    flop_callback = ProfilerFLOPCallback()
+
+    # Initialize trainer
+    if args.regular:
+        if torch.cuda.current_device() == 0:
+            print("\n3. Initializing regular trainer...")
+        trainer = (AlignTrainer if ALIGN is not None else Trainer)(
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            callbacks=[flop_callback] if args.track_flop else [],
+            **({"align": ALIGN} if ALIGN is not None else {}),
+        )
+    else:
+        if torch.cuda.current_device() == 0:
+            print("\n3. Initializing representation trainer...")
+        trainer = RepresentationTrainer(
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            callbacks=[flop_callback] if args.track_flop else [],
+            lbd=args.lbd,
+            gamma=args.gamma,
+            last_token=args.last_token,
+            debug=args.debug,
+            additive_mask=args.additive_mask,
+            jepa_l2=args.jepa_l2,
+            jepa_mse=args.jepa_mse,
+            infonce=args.infonce,
+            jepa_ratio=args.jepa_ratio,
+            step_targets=args.step_targets,
+            stopgrad=args.stopgrad,
+            shuffle_targets=args.shuffle_targets,
+            const_target=args.const_target,
+            noise_target=args.noise_target,
+            jepa_layer=args.jepa_layer,
+            center=args.center,
+            batch_center=args.batch_center,
+            var_coef=args.var_coef,
+            n_pred=args.predictors,
+        )
+    
+    if args.footprint_file:
+        fp_ds = load_and_prepare_dataset(
+            args.footprint_file, tokenizer, args.model_name, args.max_length, regular=args.regular,
+            debug=args.debug, train_all=args.train_all, plain=args.plain,
+            front_pred=args.front_pred, reverse_pred=args.reverse_pred,
+            unmask_assistant_special_tokens=args.unmask_assistant_special_tokens)
+        trainer.add_callback(FootprintCallback(trainer, train_dataset, fp_ds, data_collator, os.path.join(output_dir, "footprint.jsonl")))
+    if torch.cuda.current_device() == 0 and args.lora:
+        print("=== PEFT Model Check ===")
+        model.print_trainable_parameters()
+
+        # Check if any parameters require gradients
+        trainable_params = []
+        for name, param in model.named_parameters():
+            if param.requires_grad:
+                trainable_params.append(name)
+
+        print(f"Trainable parameters: {len(trainable_params)}")
+        if len(trainable_params) == 0:
+            print("ERROR: No parameters require gradients!")
+        else:
+            print("First few trainable params:", trainable_params[:5])
+
+    # Start training
+    if torch.cuda.current_device() == 0:
+        print("\n4. Starting training...")
+    try:
+        trainer.train()
+    except Exception as e:
+        if torch.cuda.current_device() == 0:
+            print(f"Training failed with error: {e}")
+            print("This might be due to FSDP/sharding issues. Try running with --lora flag for LoRA fine-tuning.")
+        raise
+    
+    # Save final model
+    if torch.cuda.current_device() == 0:
+        print("\n5. Saving final model...")
+
+    def save_model(model):
+        if torch.cuda.current_device() == 0:
+            if args.lora:
+                model = model.merge_and_unload()
+                model.save_pretrained(output_dir)
+                tokenizer.save_pretrained(output_dir)
+            else:
+                trainer.save_model()
+                trainer.save_state()
+                tokenizer.save_pretrained(output_dir)
+
+    retry = 3
+    while retry > 0:
+        try:
+            save_model(model)
+            break
+        except Exception as e:
+            print(f"Success Rate: Saving model encounter error: {e}")
+            retry -= 1
+            if retry <= 0:
+                raise
+            time.sleep(10)
+    
+    if torch.cuda.current_device() == 0:
+        print(f"\n✅ Training completed! Model saved to {args.output_dir}")
+    
+    if torch.cuda.current_device() == 0:
+        print("\n🎉 Fine-tuning finished successfully!")
+
+
+if __name__ == "__main__":
+    main()

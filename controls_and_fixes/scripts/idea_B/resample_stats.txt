@@ -1,0 +1,21 @@
+train problems 5973; parsed program + >=1 valid variant: 2768 (46.3%); variants written 6999
+variants per problem (of those parsed): 0:1209, 1:238, 2:1247, 3:1053, 4:42, 5:188
+reasons a problem produced nothing:
+  no_valid_variant            1209   20.2%
+  scaled_literal               570    9.5%
+  no_eligible_inputs           459    7.7%
+  unexplained_prose_number     300    5.0%
+  answer_not_last_result       292    4.9%
+  ambiguous_literal            290    4.9%
+  no_annotations                74    1.2%
+  annotation_mismatch            9    0.2%
+  unparsable_annotation          2    0.0%
+failed attempts by check (counts over all tries):
+  results_not_plausible       174519
+  value_conflict               57649
+  equation_check_failed        44900
+  number_word_conflict         38436
+  rewrite_failed                1600
+  chain_error                    104
+  implausible_bound               58
+  answer_mismatch                 22
